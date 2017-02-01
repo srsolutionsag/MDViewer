@@ -1,0 +1,63 @@
+{
+    "plugin_prefix": "copg_pgcp_md_tme",
+    "languages": [
+        "en",
+        "de"
+    ],
+    "entries": {
+        "form": {
+            "title": {
+                "translations": {
+                    "en": "External Markdown-File",
+                    "de": "Externe Markdown-Datei"
+                },
+                "last_used": "01.02.2017"
+            },
+            "button_cancel": {
+                "translations": {
+                    "en": "Cancel",
+                    "de": "Abbrechen"
+                },
+                "last_used": "01.02.2017"
+            },
+            "md": {
+                "translations": {
+                    "en": "External Markdown-File",
+                    "de": "Externe Markdown-Datei"
+                },
+                "last_used": "01.02.2017"
+            },
+            "button_update": {
+                "translations": {
+                    "en": "Save",
+                    "de": "Speichern"
+                },
+                "last_used": "01.02.2017"
+            },
+            "button_create": {
+                "translations": {
+                    "en": "Save",
+                    "de": "Speichern"
+                },
+                "last_used": "01.02.2017"
+            }
+        },
+        "msg": {
+            "saved": {
+                "translations": {
+                    "en": "Saved",
+                    "de": "Gespeichert"
+                }
+            }
+        },
+        "cmd": {
+            "insert": {
+                "translations": {
+                    "en": "Include external MD-File",
+                    "de": "Neue externe Markdown-Datei einbinden"
+                },
+                "last_used": "01.02.2017"
+            }
+        }
+    }
+}
