@@ -60,12 +60,34 @@
                 "last_used": "01.02.2017"
             }
         },
-        "button": {
-            "edit": {
+        "box": {
+            "title": {
                 "translations": {
-                    "en": "MISSING",
-                    "de": "MISSING"
-                }
+                    "en": "Information on this content",
+                    "de": "informationen zum nachfolgenden Inhalt"
+                },
+                "last_used": "01.02.2017"
+            },
+            "intro_text": {
+                "translations": {
+                    "en": "The following text is hosted by an external source.",
+                    "de": "Der nachfolgende Inhalt wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt."
+                },
+                "last_used": "01.02.2017"
+            },
+            "button_open": {
+                "translations": {
+                    "en": "Open Original",
+                    "de": "Original anzeigen"
+                },
+                "last_used": "01.02.2017"
+            },
+            "outro_text": {
+                "translations": {
+                    "en": "The text above this line is hosted by an external source. ",
+                    "de": "Der Inhalt oberhalb dieser Meldung wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt."
+                },
+                "last_used": "01.02.2017"
             }
         }
     }
