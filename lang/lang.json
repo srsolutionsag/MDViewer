@@ -47,7 +47,8 @@
                 "translations": {
                     "en": "Saved",
                     "de": "Gespeichert"
-                }
+                },
+                "last_used": "01.02.2017"
             }
         },
         "cmd": {
@@ -57,6 +58,14 @@
                     "de": "Neue externe Markdown-Datei einbinden"
                 },
                 "last_used": "01.02.2017"
+            }
+        },
+        "button": {
+            "edit": {
+                "translations": {
+                    "en": "MISSING",
+                    "de": "MISSING"
+                }
             }
         }
     }

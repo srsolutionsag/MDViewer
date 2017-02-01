@@ -10,6 +10,8 @@ include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
 class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 
 	const F_EXTERNAL_MD = 'external_md';
+	const MODE_EDIT = 'edit';
+	const MODE_PRESENTATION = 'presentation';
 
 
 	public function executeCommand() {
@@ -27,7 +29,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				if (in_array($cmd, array(
 					"create",
 					"save",
-					"edit",
+					self::MODE_EDIT,
 					"edit2",
 					"update",
 					"cancel",
@@ -111,11 +113,23 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 	 * @return mixed
 	 */
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version) {
-		require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
-		$p = new Parsedown();
+		global $DIC;
+		switch ($a_mode) {
+			case self::MODE_EDIT:
+				$UIServices = $DIC->ui();
 
-		return "<div class='external-md'>"
-		       . $p->text(file_get_contents($a_properties[self::F_EXTERNAL_MD])) . "</div>";
+				$glyph = $UIServices->renderer()->render($UIServices->factory()->glyph()
+				                                                    ->settings());
+
+				return $glyph . $a_properties[self::F_EXTERNAL_MD];
+			case self::MODE_PRESENTATION:
+			default:
+				require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
+				$p = new Parsedown();
+
+				return "<div class='external-md'>"
+				       . $p->text(file_get_contents($a_properties[self::F_EXTERNAL_MD])) . "</div>";
+		}
 	}
 
 
