@@ -5,4 +5,7 @@ form_button_update#:#Speichern
 form_button_create#:#Speichern
 msg_saved#:#Gespeichert
 cmd_insert#:#Neue externe Markdown-Datei einbinden
-button_edit#:#MISSING
+box_title#:#informationen zum nachfolgenden Inhalt
+box_intro_text#:#Der nachfolgende Inhalt wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt.
+box_button_open#:#Original anzeigen
+box_outro_text#:#Der Inhalt oberhalb dieser Meldung wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt.

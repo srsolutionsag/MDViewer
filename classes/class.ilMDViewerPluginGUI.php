@@ -114,21 +114,32 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 	 */
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version) {
 		global $DIC;
+		$factory = $DIC->ui()->factory();
+		$renderer = $DIC->ui()->renderer();
 		switch ($a_mode) {
 			case self::MODE_EDIT:
-				$UIServices = $DIC->ui();
-
-				$glyph = $UIServices->renderer()->render($UIServices->factory()->glyph()
-				                                                    ->settings());
+				$glyph = $renderer->render($factory->glyph()->settings());
 
 				return $glyph . $a_properties[self::F_EXTERNAL_MD];
 			case self::MODE_PRESENTATION:
 			default:
 				require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
+				$external_file = $a_properties[self::F_EXTERNAL_MD];
+				$external_content_raw = file_get_contents($external_file);
 				$p = new Parsedown();
+				/**
+				 * @var $tpl ilTemplate
+				 */
 
-				return "<div class='external-md'>"
-				       . $p->text(file_get_contents($a_properties[self::F_EXTERNAL_MD])) . "</div>";
+				$tpl = $this->getPlugin()->getTemplate('tpl.output.html');
+				$tpl->setVariable('MD_CONTENT', $p->text($external_content_raw));
+				$tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
+				$tpl->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
+				$tpl->setVariable('HREF_ORIGINAL', $external_file);
+				$tpl->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
+
+
+				return $renderer->render($factory->legacy($tpl->get()));
 		}
 	}
 
