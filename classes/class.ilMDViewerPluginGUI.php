@@ -1,5 +1,7 @@
 <?php
 include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
+require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
+use GrahamCampbell\Markdown\Facades\Markdown;
 
 /**
  * Class ilMDViewerPluginGUI
@@ -123,21 +125,22 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				return $glyph . $a_properties[self::F_EXTERNAL_MD];
 			case self::MODE_PRESENTATION:
 			default:
-				require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
+
 				$external_file = $a_properties[self::F_EXTERNAL_MD];
 				$external_content_raw = file_get_contents($external_file);
-				$p = new Parsedown();
 				/**
 				 * @var $tpl ilTemplate
 				 */
-
 				$tpl = $this->getPlugin()->getTemplate('tpl.output.html');
-				$tpl->setVariable('MD_CONTENT', $p->text($external_content_raw));
+
+				$parser = new \cebe\markdown\GithubMarkdown();
+				$md_content = $parser->parse($external_content_raw);
+
+				$tpl->setVariable('MD_CONTENT', $md_content);
 				$tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
 				$tpl->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
 				$tpl->setVariable('HREF_ORIGINAL', $external_file);
 				$tpl->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
-
 
 				return $renderer->render($factory->legacy($tpl->get()));
 		}
@@ -160,6 +163,9 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 		$form->addCommandButton("cancel", $this->getPlugin()->txt("form_button_cancel"));
 		$form->setFormAction($ilCtrl->getFormAction($this));
 		$md = new ilTextInputGUI($this->getPlugin()->txt('form_md'), self::F_EXTERNAL_MD);
+		$md->setValidationRegexp('/^https\\:\\/\\/raw\\.githubusercontent.com\\/ILIAS-.*\\.md/uUm');
+		$md->setValidationFailureMessage($this->getPlugin()
+		                                      ->txt('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed'));
 		$form->addItem($md);
 
 		return $form;
