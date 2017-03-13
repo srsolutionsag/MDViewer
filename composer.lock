@@ -4,30 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "958c96bb554e09b56c540a09f88d3660",
-    "content-hash": "df5dbbabef6cd996a6408ac2035b6459",
+    "hash": "38aa2dfcf1b2fbfcd0bb41ca75a55034",
+    "content-hash": "f439a634e5b62532fa2e06add1491864",
     "packages": [
         {
-            "name": "erusev/parsedown",
-            "version": "1.6.1",
+            "name": "cebe/markdown",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erusev/parsedown.git",
-                "reference": "20ff8bbb57205368b4b42d094642a3e52dac85fb"
+                "url": "https://github.com/cebe/markdown.git",
+                "reference": "c30eb5e01fe021cc5bba2f9ee0eeef96d4931166"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/20ff8bbb57205368b4b42d094642a3e52dac85fb",
-                "reference": "20ff8bbb57205368b4b42d094642a3e52dac85fb",
+                "url": "https://api.github.com/repos/cebe/markdown/zipball/c30eb5e01fe021cc5bba2f9ee0eeef96d4931166",
+                "reference": "c30eb5e01fe021cc5bba2f9ee0eeef96d4931166",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "lib-pcre": "*",
+                "php": ">=5.4.0"
             },
+            "require-dev": {
+                "cebe/indent": "*",
+                "facebook/xhprof": "*@dev",
+                "phpunit/phpunit": "4.1.*"
+            },
+            "bin": [
+                "bin/markdown"
+            ],
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
             "autoload": {
-                "psr-0": {
-                    "Parsedown": ""
+                "psr-4": {
+                    "cebe\\markdown\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -36,18 +50,22 @@
             ],
             "authors": [
                 {
-                    "name": "Emanuil Rusev",
-                    "email": "hello@erusev.com",
-                    "homepage": "http://erusev.com"
+                    "name": "Carsten Brandt",
+                    "email": "mail@cebe.cc",
+                    "homepage": "http://cebe.cc/",
+                    "role": "Creator"
                 }
             ],
-            "description": "Parser for Markdown.",
-            "homepage": "http://parsedown.org",
+            "description": "A super fast, highly extensible markdown parser for PHP",
+            "homepage": "https://github.com/cebe/markdown#readme",
             "keywords": [
+                "extensible",
+                "fast",
+                "gfm",
                 "markdown",
-                "parser"
+                "markdown-extra"
             ],
-            "time": "2016-11-02 15:56:58"
+            "time": "2016-09-14 20:40:20"
         }
     ],
     "packages-dev": [],

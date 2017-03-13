@@ -24,7 +24,15 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @return bool
 	 */
 	public function isValidParentType($a_parent_type) {
-		return true;
+		global $rbacreview, $ilUser;
+		/**
+		 * @var $rbacreview ilRbacReview
+		 */
+		if ($rbacreview->isAssigned($ilUser->getId(), 2)) {
+			return true;
+		}
+
+		return false;
 	}
 
 
@@ -32,7 +40,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @param $a_mode
 	 * @return array
 	 */
-	public function getJavascriptFiles($a_mode) {
+	public function getJavascriptFiles() {
 		return array();
 	}
 
@@ -41,13 +49,14 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @param $a_mode
 	 * @return array
 	 */
-	public function getCssFiles($a_mode) {
-		switch ($a_mode) {
-			case ilMDViewerPluginGUI::MODE_PRESENTATION:
-				return array(
-					'templates/external-md.css',
-				);
-		}
+	public function getCssFiles() {
+//		switch ($a_mode) {
+//			case ilMDViewerPluginGUI::MODE_PRESENTATION:
+//
+//		}
+		return array(
+			'templates/external-md.css',
+		);
 
 		return array();
 	}
