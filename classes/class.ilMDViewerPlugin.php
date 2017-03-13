@@ -40,7 +40,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @param $a_mode
 	 * @return array
 	 */
-	public function getJavascriptFiles($a_mode) {
+	public function getJavascriptFiles() {
 		return array();
 	}
 
@@ -49,13 +49,14 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @param $a_mode
 	 * @return array
 	 */
-	public function getCssFiles($a_mode) {
-		switch ($a_mode) {
-			case ilMDViewerPluginGUI::MODE_PRESENTATION:
-				return array(
-					'templates/external-md.css',
-				);
-		}
+	public function getCssFiles() {
+//		switch ($a_mode) {
+//			case ilMDViewerPluginGUI::MODE_PRESENTATION:
+//
+//		}
+		return array(
+			'templates/external-md.css',
+		);
 
 		return array();
 	}
