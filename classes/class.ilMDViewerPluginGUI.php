@@ -115,12 +115,13 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 	 * @return mixed
 	 */
 	public function getElementHTML($a_mode, array $a_properties, $a_plugin_version) {
-		global $DIC;
-		$factory = $DIC->ui()->factory();
-		$renderer = $DIC->ui()->renderer();
+		//		global $DIC;
+		//		$factory = $DIC->ui()->factory();
+		//		$renderer = $DIC->ui()->renderer();
 		switch ($a_mode) {
 			case self::MODE_EDIT:
-				$glyph = $renderer->render($factory->glyph()->settings());
+				//				$glyph = $renderer->render($factory->glyph()->settings());
+				$glyph = '';
 
 				return $glyph . $a_properties[self::F_EXTERNAL_MD];
 			case self::MODE_PRESENTATION:
@@ -142,7 +143,8 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				$tpl->setVariable('HREF_ORIGINAL', $external_file);
 				$tpl->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
 
-				return $renderer->render($factory->legacy($tpl->get()));
+				return $tpl->get();
+			//				return $renderer->render($factory->legacy($tpl->get()));
 		}
 	}
 
