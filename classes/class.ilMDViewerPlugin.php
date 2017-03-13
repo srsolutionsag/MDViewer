@@ -24,7 +24,15 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 * @return bool
 	 */
 	public function isValidParentType($a_parent_type) {
-		return true;
+		global $rbacreview, $ilUser;
+		/**
+		 * @var $rbacreview ilRbacReview
+		 */
+		if ($rbacreview->isAssigned($ilUser->getId(), 2)) {
+			return true;
+		}
+
+		return false;
 	}
 
 
