@@ -2,7 +2,6 @@
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   color: #333333;
-  line-height: 1.5;
   word-wrap: break-word;
 }
 .external-md .pl-c {
@@ -253,15 +252,6 @@
 .external-md input {
   -webkit-font-feature-settings: "liga" 0;
   font-feature-settings: "liga" 0;
-}
-.external-md ::before {
-  display: table;
-  content: "";
-}
-.external-md ::after {
-  display: table;
-  clear: both;
-  content: "";
 }
 .external-md > *:first-child {
   margin-top: 0 !important;

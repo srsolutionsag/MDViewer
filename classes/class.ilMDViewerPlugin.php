@@ -55,7 +55,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 //
 //		}
 		return array(
-//			'templates/external-md.css',
+			'templates/external-md.css',
 		);
 
 		return array();
