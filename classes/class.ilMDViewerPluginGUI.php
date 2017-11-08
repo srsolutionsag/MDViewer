@@ -128,7 +128,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 			default:
 
 				$external_file = $a_properties[self::F_EXTERNAL_MD];
-				$external_content_raw = file_get_contents($external_file);
+				$external_content_raw = @file_get_contents($external_file);
 				/**
 				 * @var $tpl ilTemplate
 				 */
@@ -166,8 +166,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 		$form->setFormAction($ilCtrl->getFormAction($this));
 		$md = new ilTextInputGUI($this->getPlugin()->txt('form_md'), self::F_EXTERNAL_MD);
 		$md->setValidationRegexp('/^https\\:\\/\\/raw\\.githubusercontent.com\\/ILIAS-.*\\.md/uUm');
-		$md->setValidationFailureMessage($this->getPlugin()
-		                                      ->txt('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed'));
+		$md->setValidationFailureMessage('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed');
 		$form->addItem($md);
 
 		return $form;
