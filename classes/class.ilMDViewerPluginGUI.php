@@ -15,6 +15,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 	const F_EXTERNAL_MD = 'external_md';
 	const MODE_EDIT = 'edit';
 	const MODE_PRESENTATION = 'presentation';
+	const F_LINK_PREFIX = 'link_prefix';
 
 
 	public function executeCommand() {
@@ -59,6 +60,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 		if ($form->checkInput()) {
 			$properties = array(
 				self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
+				self::F_LINK_PREFIX => $form->getInput(self::F_LINK_PREFIX),
 			);
 			if ($this->createElement($properties)) {
 				ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
@@ -88,6 +90,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 		if ($form->checkInput()) {
 			$properties = array(
 				self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
+				self::F_LINK_PREFIX => $form->getInput(self::F_LINK_PREFIX),
 			);
 			if ($this->updateElement($properties)) {
 				ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
@@ -136,6 +139,14 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 
 				$md_content = MarkdownExtra::defaultTransform($external_content_raw);
 
+				if ($a_properties[self::F_LINK_PREFIX]) {
+					//					$pattern = '\.\.\/\.\.\/';
+					$pattern = $a_properties[self::F_LINK_PREFIX];
+					$re = '/<a.*href="' . $pattern . '(.*)">/';
+					$subst = '<a href="$1">';
+					$md_content = preg_replace($re, $subst, $md_content);
+				}
+
 				$tpl->setVariable('MD_CONTENT', $md_content);
 				$tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
 				$tpl->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
@@ -166,6 +177,9 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 		$md = new ilTextInputGUI($this->getPlugin()->txt('form_md'), self::F_EXTERNAL_MD);
 		$md->setValidationRegexp('/^https\\:\\/\\/raw\\.githubusercontent.com\\/ILIAS-.*\\.md/uUm');
 		$md->setValidationFailureMessage('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed');
+		$form->addItem($md);
+
+		$md = new ilTextInputGUI($this->getPlugin()->txt('form_link_prefix'), self::F_LINK_PREFIX);
 		$form->addItem($md);
 
 		return $form;
