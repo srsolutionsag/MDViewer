@@ -14,13 +14,14 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 *
 	 * @return string
 	 */
-	function getPluginName() {
+	public function getPluginName() {
 		return "MDViewer";
 	}
 
 
 	/**
 	 * @param string $a_parent_type
+	 *
 	 * @return bool
 	 */
 	public function isValidParentType($a_parent_type) {
@@ -38,27 +39,23 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 
 	/**
 	 * @param $a_mode
+	 *
 	 * @return array
 	 */
-	public function getJavascriptFiles() {
+	public function getJavascriptFiles($a_mode) {
 		return array();
 	}
 
 
 	/**
 	 * @param $a_mode
+	 *
 	 * @return array
 	 */
-	public function getCssFiles() {
-//		switch ($a_mode) {
-//			case ilMDViewerPluginGUI::MODE_PRESENTATION:
-//
-//		}
+	public function getCssFiles($a_mode) {
 		return array(
 			'templates/external-md.css',
 		);
-
-		return array();
 	}
 
 

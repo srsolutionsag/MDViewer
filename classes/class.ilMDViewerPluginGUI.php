@@ -1,7 +1,8 @@
 <?php
 include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
 require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
-use GrahamCampbell\Markdown\Facades\Markdown;
+
+use Michelf\MarkdownExtra;
 
 /**
  * Class ilMDViewerPluginGUI
@@ -126,7 +127,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				return $glyph . $a_properties[self::F_EXTERNAL_MD];
 			case self::MODE_PRESENTATION:
 			default:
-
 				$external_file = $a_properties[self::F_EXTERNAL_MD];
 				$external_content_raw = @file_get_contents($external_file);
 				/**
@@ -134,8 +134,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				 */
 				$tpl = $this->getPlugin()->getTemplate('tpl.output.html');
 
-				$parser = new \cebe\markdown\GithubMarkdown();
-				$md_content = $parser->parse($external_content_raw);
+				$md_content = MarkdownExtra::defaultTransform($external_content_raw);
 
 				$tpl->setVariable('MD_CONTENT', $md_content);
 				$tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
@@ -144,13 +143,13 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI {
 				$tpl->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
 
 				return $tpl->get();
-			//				return $renderer->render($factory->legacy($tpl->get()));
 		}
 	}
 
 
 	/**
 	 * @param string $mode create or update
+	 *
 	 * @return \ilPropertyFormGUI
 	 */
 	protected function initForm($mode = 'create') {
