@@ -3,6 +3,7 @@ form_button_cancel#:#Cancel
 form_md#:#External Markdown-File
 form_button_update#:#Save
 form_button_create#:#Save
+form_link_prefix#:#Link-Prefix
 msg_saved#:#Saved
 cmd_insert#:#Include external MD-File
 box_title#:#Information on this content

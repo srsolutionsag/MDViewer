@@ -3,6 +3,7 @@ form_button_cancel#:#Abbrechen
 form_md#:#Externe Markdown-Datei
 form_button_update#:#Speichern
 form_button_create#:#Speichern
+form_link_prefix#:#Link-Prefix
 msg_saved#:#Gespeichert
 cmd_insert#:#Neue externe Markdown-Datei einbinden
 box_title#:#informationen zum nachfolgenden Inhalt

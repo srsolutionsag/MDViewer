@@ -11,28 +11,28 @@
                     "en": "External Markdown-File",
                     "de": "Externe Markdown-Datei"
                 },
-                "last_used": "01.02.2017"
+                "last_used": "27.03.2018"
             },
             "button_cancel": {
                 "translations": {
                     "en": "Cancel",
                     "de": "Abbrechen"
                 },
-                "last_used": "01.02.2017"
+                "last_used": "27.03.2018"
             },
             "md": {
                 "translations": {
                     "en": "External Markdown-File",
                     "de": "Externe Markdown-Datei"
                 },
-                "last_used": "01.02.2017"
+                "last_used": "27.03.2018"
             },
             "button_update": {
                 "translations": {
                     "en": "Save",
                     "de": "Speichern"
                 },
-                "last_used": "01.02.2017"
+                "last_used": "27.03.2018"
             },
             "button_create": {
                 "translations": {
@@ -40,6 +40,13 @@
                     "de": "Speichern"
                 },
                 "last_used": "01.02.2017"
+            },
+            "link_prefix": {
+                "translations": {
+                    "en": "Link-Prefix",
+                    "de": "Link-Prefix"
+                },
+                "last_used": "27.03.2018"
             }
         },
         "msg": {
@@ -57,7 +64,7 @@
                     "en": "Include external MD-File",
                     "de": "Neue externe Markdown-Datei einbinden"
                 },
-                "last_used": "01.02.2017"
+                "last_used": "27.03.2018"
             }
         },
         "box": {
