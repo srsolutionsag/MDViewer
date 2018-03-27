@@ -42,7 +42,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 *
 	 * @return array
 	 */
-	public function getJavascriptFiles() {
+	public function getJavascriptFiles($a_mode) {
 		return array();
 	}
 
@@ -52,7 +52,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 *
 	 * @return array
 	 */
-	public function getCssFiles() {
+	public function getCssFiles($a_mode) {
 		return array(
 			'templates/external-md.css',
 		);
