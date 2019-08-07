@@ -26,11 +26,15 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 	 */
 	public function isValidParentType($a_parent_type) {
 		global $rbacreview, $ilUser;
-		/**
-		 * @var $rbacreview ilRbacReview
-		 */
-		if ($rbacreview->isAssigned($ilUser->getId(), 2)) {
-			return true;
+
+		$authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
+		foreach ($authorized_roles as $authorized_role) {
+			/**
+			 * @var $rbacreview ilRbacReview
+			 */
+			if ($rbacreview->isAssigned($ilUser->getId(), $authorized_role)) {
+				return true;
+			}
 		}
 
 		return false;
