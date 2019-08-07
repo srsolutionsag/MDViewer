@@ -10,3 +10,6 @@ box_title#:#informationen zum nachfolgenden Inhalt
 box_intro_text#:#Der nachfolgende Inhalt wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt.
 box_button_open#:#Original anzeigen
 box_outro_text#:#Der Inhalt oberhalb dieser Meldung wird auf einer externen Datenquelle gepflegt und hier lediglich dargestellt.
+config_configuration#:#Konfiguration
+config_authorized_roles#:#Berechtigte Rollen
+config_info_authorized_roles#:#Rollen, welche zugewiesene Benutzer zur Verwendung der Funktionalität des MDViewer-Plugins berechtigen.

@@ -10,3 +10,6 @@ box_title#:#Information on this content
 box_intro_text#:#The following text is hosted by an external source.
 box_button_open#:#Open Original
 box_outro_text#:#The text above this line is hosted by an external source. 
+config_configuration#:#Configuration
+config_authorized_roles#:#Authorized Roles
+config_info_authorized_roles#:#Roles that authorize assigned users to use the functionalities of the MDViewer-plugin.

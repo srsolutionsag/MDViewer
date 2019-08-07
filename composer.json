@@ -1,4 +1,9 @@
 {
+    "autoload": {
+        "classmap": [
+            "./classes/"
+        ]
+    },
     "require": {
         "michelf/php-markdown": "^1.7"
     }
