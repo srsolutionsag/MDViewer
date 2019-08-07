@@ -76,8 +76,8 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI {
 			ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES,
 			$_POST[ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES]
 		);
-		$this->configure();
 		ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
+		$this->ctrl->redirect($this, self::CMD_CONFIGURE);
 	}
 
 
@@ -104,11 +104,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI {
 			ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES
 		);
 		$authorized_roles->setOptions(self::getRoles(ilRbacReview::FILTER_ALL_GLOBAL));
-//		$selected = [
-//			0 => true,
-//			2 => true
-//		];
-//		$authorized_roles->setValue($selected);
 		$authorized_roles->setInfo($this->getPluginObject()->txt("config_info_authorized_roles"));
 		$authorized_roles->setRequired(true);
 		$this->config_form->addItem($authorized_roles);
