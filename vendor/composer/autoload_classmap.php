@@ -6,4 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ilMDViewerConfig' => $baseDir . '/classes/class.ilMDViewerConfig.php',
+    'ilMDViewerConfigGUI' => $baseDir . '/classes/class.ilMDViewerConfigGUI.php',
+    'ilMDViewerPlugin' => $baseDir . '/classes/class.ilMDViewerPlugin.php',
+    'ilMDViewerPluginGUI' => $baseDir . '/classes/class.ilMDViewerPluginGUI.php',
 );
