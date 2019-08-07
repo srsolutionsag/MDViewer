@@ -28,12 +28,14 @@ class ilMDViewerPlugin extends ilPageComponentPlugin {
 		global $rbacreview, $ilUser;
 
 		$authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
-		foreach ($authorized_roles as $authorized_role) {
-			/**
-			 * @var $rbacreview ilRbacReview
-			 */
-			if ($rbacreview->isAssigned($ilUser->getId(), $authorized_role)) {
-				return true;
+		if( (!empty($authorized_roles)) AND ($authorized_roles !== NULL) AND ($authorized_roles != "null")) {
+			foreach ($authorized_roles as $authorized_role) {
+				/**
+				 * @var $rbacreview ilRbacReview
+				 */
+				if ($rbacreview->isAssigned($ilUser->getId(), $authorized_role)) {
+					return true;
+				}
 			}
 		}
 
