@@ -62,5 +62,12 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
         ];
     }
 
+    protected function afterUninstall()
+    {
+        global $DIC;
+
+        $DIC->database()->dropTable((new ilMDViewerConfig)->getConnectorContainerName());
+    }
+
 }
 

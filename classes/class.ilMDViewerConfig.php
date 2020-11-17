@@ -101,7 +101,7 @@ class ilMDViewerConfig extends ActiveRecord
      * @db_is_primary       true
      * @db_is_notnull       true
      * @db_fieldtype        text
-     * @db_length           256
+     * @db_length           250
      */
     protected $name;
     /**
