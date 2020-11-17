@@ -6,7 +6,6 @@ use Michelf\MarkdownExtra;
 
 /**
  * Class ilMDViewerPluginGUI
- *
  * @author            Fabian Schmid <fs@studer-raimann.ch>
  * @ilCtrl_isCalledBy ilMDViewerPluginGUI: ilPCPluggedGUI
  */
@@ -17,7 +16,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
     const F_LINK_PREFIX = 'link_prefix';
-
 
     public function executeCommand()
     {
@@ -47,7 +45,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
-
     public function insert()
     {
         global $tpl;
@@ -55,7 +52,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $form = $this->initForm('create');
         $tpl->setContent($form->getHTML());
     }
-
 
     public function create()
     {
@@ -78,7 +74,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $tpl->setContent($form->getHTML());
     }
 
-
     public function edit()
     {
         global $tpl;
@@ -87,7 +82,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $form->setValuesByArray($this->getProperties());
         $tpl->setContent($form->getHTML());
     }
-
 
     public function update()
     {
@@ -110,20 +104,16 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $tpl->setContent($form->getHTML());
     }
 
-
     public function cancel()
     {
         $this->returnToParent();
     }
 
-
     /**
      * Get HTML for element
-     *
      * @param       $a_mode
      * @param array $a_properties
      * @param       $a_plugin_version
-     *
      * @return mixed
      */
     public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
@@ -166,10 +156,8 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
-
     /**
      * @param string $mode create or update
-     *
      * @return \ilPropertyFormGUI
      */
     protected function initForm($mode = 'create')

@@ -2,7 +2,6 @@
 
 /**
  * Class ilMDViewerConfig
- *
  * @author studer + raimann ag - Team Core 1 <support-core1@studer-raimann.ch>
  */
 class ilMDViewerConfig extends ActiveRecord
@@ -10,7 +9,6 @@ class ilMDViewerConfig extends ActiveRecord
 
     const TABLE_NAME = 'md_tme_config';
     const KEY_IDS_OF_AUTHORIZED_ROLES = "ids_of_authorized_roles";
-
 
     /**
      * @return string
@@ -20,7 +18,6 @@ class ilMDViewerConfig extends ActiveRecord
         return self::TABLE_NAME;
     }
 
-
     /**
      * @return string
      * @deprecated
@@ -29,7 +26,6 @@ class ilMDViewerConfig extends ActiveRecord
     {
         return self::TABLE_NAME;
     }
-
 
     /**
      * @var array
@@ -44,10 +40,8 @@ class ilMDViewerConfig extends ActiveRecord
      */
     protected $ar_safe_read = false;
 
-
     /**
      * @param string $name
-     *
      * @return string|mixed
      */
     public static function get($name = null)
@@ -68,7 +62,6 @@ class ilMDViewerConfig extends ActiveRecord
         return self::$cache[$name];
     }
 
-
     /**
      * @param string       $name
      * @param string|mixed $value
@@ -87,7 +80,6 @@ class ilMDViewerConfig extends ActiveRecord
         }
     }
 
-
     /**
      * @param string $name
      */
@@ -102,10 +94,8 @@ class ilMDViewerConfig extends ActiveRecord
         }
     }
 
-
     /**
      * @var string
-     *
      * @db_has_field        true
      * @db_is_unique        true
      * @db_is_primary       true
@@ -116,18 +106,15 @@ class ilMDViewerConfig extends ActiveRecord
     protected $name;
     /**
      * @var string
-     *
      * @db_has_field        true
      * @db_fieldtype        text
      * @db_length           2048
      */
     protected $value;
 
-
     /**
      * @param $field_name
      * @param $field_value
-     *
      * @return mixed
      */
     public function wakeUp($field_name, $field_value)
@@ -141,10 +128,8 @@ class ilMDViewerConfig extends ActiveRecord
         return null;
     }
 
-
     /**
      * @param $field_name
-     *
      * @return string
      */
     public function sleep($field_name)
@@ -158,7 +143,6 @@ class ilMDViewerConfig extends ActiveRecord
         return null;
     }
 
-
     /**
      * @param string|mixed $value
      */
@@ -166,7 +150,6 @@ class ilMDViewerConfig extends ActiveRecord
     {
         $this->value = $value;
     }
-
 
     /**
      * @return string|mixed
@@ -176,7 +159,6 @@ class ilMDViewerConfig extends ActiveRecord
         return $this->value;
     }
 
-
     /**
      * @param string $name
      */
@@ -184,7 +166,6 @@ class ilMDViewerConfig extends ActiveRecord
     {
         $this->name = $name;
     }
-
 
     /**
      * @return string

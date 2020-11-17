@@ -4,7 +4,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilMDViewerConfigGUI
- *
  * @author studer + raimann ag - Team Core 1 <support-core1@studer-raimann.ch>
  */
 class ilMDViewerConfigGUI extends ilPluginConfigGUI
@@ -30,7 +29,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
      */
     private $config_form;
 
-
     /**
      * ilMDViewerConfigGUI constructor.
      */
@@ -42,7 +40,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->lng = $DIC->language();
         $this->tpl = $DIC->ui()->mainTemplate();
     }
-
 
     /**
      * @param string $cmd
@@ -58,7 +55,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         }
     }
 
-
     /**
      * Show configuration page
      */
@@ -68,7 +64,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->fillForm();
         $this->tpl->setContent($this->config_form->getHTML());
     }
-
 
     /**
      * Save configuration
@@ -83,7 +78,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->ctrl->redirect($this, self::CMD_CONFIGURE);
     }
 
-
     /**
      * Return to plugin list
      */
@@ -91,7 +85,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     {
         $this->ctrl->redirectByClass(ilObjComponentSettingsGUI::class);
     }
-
 
     /**
      * Initialize configuration-form
@@ -118,7 +111,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->config_form->addCommandButton(self::CMD_CANCEL, $this->lng->txt('cancel'));
     }
 
-
     public function fillForm()
     {
         $array = array(
@@ -129,11 +121,9 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->config_form->setValuesByArray($array);
     }
 
-
     /**
      * @param int  $filter
      * @param bool $with_text
-     *
      * @return array
      */
     public static function getRoles($filter, $with_text = true)
