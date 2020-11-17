@@ -8,6 +8,7 @@ require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewe
  */
 class ilMDViewerPlugin extends ilPageComponentPlugin
 {
+    const PLUGIN_NAME = "MDViewer";
 
     /**
      * Get plugin name
@@ -15,7 +16,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
      */
     public function getPluginName()
     {
-        return "MDViewer";
+        return self::PLUGIN_NAME;
     }
 
     /**
@@ -27,7 +28,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
         global $rbacreview, $ilUser;
 
         $authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
-        if ((!empty($authorized_roles)) and ($authorized_roles !== null) and ($authorized_roles != "null")) {
+        if (!empty($authorized_roles)) {
             foreach ($authorized_roles as $authorized_role) {
                 /**
                  * @var $rbacreview ilRbacReview
@@ -47,7 +48,7 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
      */
     public function getJavascriptFiles($a_mode)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -56,21 +57,10 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
      */
     public function getCssFiles($a_mode)
     {
-        return array(
+        return [
             'templates/external-md.css',
-        );
+        ];
     }
 
-
-    //	/**
-    //	 * @param $key
-    //	 * @return mixed|string
-    //	 * @throws \ilException
-    //	 */
-    //	public function txt($key) {
-    //		require_once('./Customizing/global/plugins/Libraries/PluginTranslator/class.sragPluginTranslator.php');
-    //
-    //		return sragPluginTranslator::getInstance($this)->active()->write()->txt($key);
-    //	}
 }
 

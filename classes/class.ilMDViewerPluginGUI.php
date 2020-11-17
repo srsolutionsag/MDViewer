@@ -16,6 +16,8 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
     const F_LINK_PREFIX = 'link_prefix';
+    const MODE_CREATE = "create";
+    const MODE_UPDATE = 'update';
 
     public function executeCommand()
     {
@@ -30,14 +32,14 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             default:
                 // perform valid commands
                 $cmd = $ilCtrl->getCmd();
-                if (in_array($cmd, array(
-                    "create",
+                if (in_array($cmd, [
+                    self::MODE_CREATE,
                     "save",
                     self::MODE_EDIT,
                     "edit2",
-                    "update",
+                    self::MODE_UPDATE,
                     "cancel",
-                ))
+                ], true)
                 ) {
                     $this->$cmd();
                 }
@@ -49,7 +51,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         global $tpl;
 
-        $form = $this->initForm('create');
+        $form = $this->initForm(self::MODE_CREATE);
         $tpl->setContent($form->getHTML());
     }
 
@@ -57,7 +59,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         global $tpl;
 
-        $form = $this->initForm('create');
+        $form = $this->initForm(self::MODE_CREATE);
         if ($form->checkInput()) {
             $properties = array(
                 self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
@@ -78,7 +80,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         global $tpl;
 
-        $form = $this->initForm('update');
+        $form = $this->initForm(self::MODE_UPDATE);
         $form->setValuesByArray($this->getProperties());
         $tpl->setContent($form->getHTML());
     }
@@ -87,7 +89,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         global $tpl;
 
-        $form = $this->initForm('update');
+        $form = $this->initForm(self::MODE_UPDATE);
         if ($form->checkInput()) {
             $properties = array(
                 self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
@@ -118,13 +120,12 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
     {
-        //		global $DIC;
-        //		$factory = $DIC->ui()->factory();
-        //		$renderer = $DIC->ui()->renderer();
+        global $DIC;
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
         switch ($a_mode) {
             case self::MODE_EDIT:
-                //				$glyph = $renderer->render($factory->glyph()->settings());
-                $glyph = '';
+                $glyph = $renderer->render($factory->symbol()->glyph()->settings());
 
                 return $glyph . $a_properties[self::F_EXTERNAL_MD];
             case self::MODE_PRESENTATION:
@@ -160,7 +161,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      * @param string $mode create or update
      * @return \ilPropertyFormGUI
      */
-    protected function initForm($mode = 'create')
+    protected function initForm($mode = self::MODE_CREATE)
     {
         global $ilCtrl;
         /**
