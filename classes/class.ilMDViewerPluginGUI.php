@@ -125,29 +125,32 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $renderer = $DIC->ui()->renderer();
         switch ($a_mode) {
             case self::MODE_EDIT:
-                $glyph = $renderer->render($factory->symbol()->glyph()->settings());
+                //$glyph = $renderer->render($factory->symbol()->glyph()->settings());
 
                 return $glyph . $a_properties[self::F_EXTERNAL_MD];
             case self::MODE_PRESENTATION:
             default:
                 $external_file = $a_properties[self::F_EXTERNAL_MD];
+                $link_prefix = $a_properties[self::F_LINK_PREFIX];
+                $link_prefix = strlen($link_prefix) > 0 ? $link_prefix : rtrim(dirname($external_file), "/") . "/";
                 $external_content_raw = @file_get_contents($external_file);
                 /**
                  * @var $tpl ilTemplate
                  */
                 $tpl = $this->getPlugin()->getTemplate('tpl.output.html');
 
-                $md_content = MarkdownExtra::defaultTransform($external_content_raw);
+                $parser = new MarkdownExtra();
+                $parser->url_filter_func = static function ($url) use ($link_prefix) {
+                    switch (substr($url, 0, 1)) {
+                        case '.':
+                            return $link_prefix . $url;
+                        case '#':
+                        default:
+                            return $url;
+                    }
+                };
 
-                if ($a_properties[self::F_LINK_PREFIX]) {
-                    //					$pattern = '\.\.\/\.\.\/';
-                    $pattern = $a_properties[self::F_LINK_PREFIX];
-                    $re = '/<a.*href="' . $pattern . '(.*)">/';
-                    $subst = '<a href="$1">';
-                    $md_content = preg_replace($re, $subst, $md_content);
-                }
-
-                $tpl->setVariable('MD_CONTENT', $md_content);
+                $tpl->setVariable('MD_CONTENT', $parser->transform($external_content_raw));
                 $tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
                 $tpl->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
                 $tpl->setVariable('HREF_ORIGINAL', $external_file);
@@ -173,6 +176,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $form->addCommandButton($mode, $this->getPlugin()->txt("form_button_" . $mode));
         $form->addCommandButton("cancel", $this->getPlugin()->txt("form_button_cancel"));
         $form->setFormAction($ilCtrl->getFormAction($this));
+
         $md = new ilTextInputGUI($this->getPlugin()->txt('form_md'), self::F_EXTERNAL_MD);
         $md->setValidationRegexp('/^https\\:\\/\\/raw\\.githubusercontent.com\\/ILIAS-.*\\.md/uUm');
         $md->setValidationFailureMessage('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed');
