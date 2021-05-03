@@ -15,7 +15,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const F_EXTERNAL_MD = 'external_md';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
-    const F_LINK_PREFIX = 'link_prefix';
+    const F_LINK_PREFIX = 'link_prefix_url';
     const MODE_CREATE = "create";
     const MODE_UPDATE = 'update';
 
@@ -141,10 +141,12 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 
                 $parser = new MarkdownExtra();
                 $parser->url_filter_func = static function ($url) use ($link_prefix) {
-                    switch (substr($url, 0, 1)) {
-                        case '.':
+                    switch (true) {
+                        case strpos($url, '..') === 0:
                             return $link_prefix . $url;
-                        case '#':
+                        case strpos($url, '.') === 0:
+                            return $link_prefix . $url;
+                        case strpos($url, '#') === 0:
                         default:
                             return $url;
                     }
