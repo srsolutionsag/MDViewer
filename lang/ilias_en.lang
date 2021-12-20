@@ -7,6 +7,7 @@ form_link_prefix#:#Link-Prefix
 form_filter_blocks#:#Filter blocks
 form_info_filter_blocks#:#Only show content blocks which are listed here (separated by comma (,)).
 msg_saved#:#Saved
+msg_invalid_url#:#External source must begin with 'https://raw.githubusercontent.com/ILIAS' and end on '.md'.
 cmd_insert#:#Include external MD-File
 box_title#:#Information on this content
 box_intro_text#:#The following text is hosted by an external source.

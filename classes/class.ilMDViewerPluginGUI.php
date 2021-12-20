@@ -52,11 +52,14 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         global $DIC;
 
         $this->tpl = $DIC->ui()->mainTemplate();
-        $this->refinery = $DIC->refinery();
         $this->user = $DIC->user();
         $this->http = $DIC->http();
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
+
+        if (!$this->isVersionBelowSix()) {
+            $this->refinery = $DIC->refinery();
+        }
 
         parent::__construct();
     }
@@ -73,7 +76,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             case self::MODE_EDIT:
             case self::MODE_CREATE:
             case self::MODE_UPDATE:
-                if (!$this->isUserAuthorized($this->user)) {
+                if ($this->getPlugin()->isUserAuthorized($this->user->getId())) {
                     $this->{$cmd}();
                 } else {
                     $this->cancel();
@@ -161,77 +164,6 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     }
 
     /**
-     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
-     */
-    protected function initForm()
-    {
-        $properties = $this->getProperties();
-        $inputs = [
-            self::F_EXTERNAL_MD => $this->ui->factory()->input()->field()->text(
-                $this->getPlugin()->txt('form_md')
-            )->withAdditionalTransformation(
-                $this->refinery->custom()->transformation(
-                    $this->getExternalUrlValidation()
-                )
-            )->withValue(
-                $properties[self::F_EXTERNAL_MD] ?? ''
-            )->withRequired(
-                true
-            ),
-
-            self::F_LINK_PREFIX => $this->ui->factory()->input()->field()->text(
-                $this->getPlugin()->txt('form_link_prefix')
-            )->withValue(
-                $properties[self::F_LINK_PREFIX] ?? ''
-            ),
-        ];
-
-        // only add blocks filter input if activated.
-        if ($this->areFilterBlocksEnabled()) {
-            $inputs[self::F_BLOCKS_FILTER] = $this->ui->factory()->input()->field()->text(
-                $this->getPlugin()->txt('form_filter_blocks'),
-                $this->getPlugin()->txt('form_info_filter_blocks')
-            )->withValue(
-                $properties[self::F_BLOCKS_FILTER] ?? ''
-            );
-        }
-
-        return $this->ui->factory()->input()->container()->form()->standard(
-            $this->ctrl->getFormActionByClass(self::class, self::MODE_UPDATE),
-            $inputs
-        );
-    }
-
-    /**
-     * @param ilObjUser $user
-     * @return bool
-     */
-    protected function isUserAuthorized($user)
-    {
-        $authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
-        if (!empty($authorized_roles)) {
-            // not using strict comparison here because I don't trust ilMDViewerConfig.
-            return in_array($user->getId(), $authorized_roles);
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Closure
-     */
-    protected function getExternalUrlValidation()
-    {
-        return static function ($value) {
-            if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
-                return $value;
-            }
-
-            return null;
-        };
-    }
-
-    /**
      * @param string $raw_content
      * @param array $blocks
      * @return string
@@ -258,13 +190,56 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $content;
     }
 
+    /**
+     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
+     */
+    protected function initForm()
+    {
+        $properties = $this->getProperties();
+        $inputs = [
+            self::F_EXTERNAL_MD => $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_md')
+            )->withAdditionalTransformation(
+                $this->getExternalUrlValidation()
+            )->withValue(
+                $properties[self::F_EXTERNAL_MD] ?? ''
+            )->withRequired(
+                true
+            ),
+
+            self::F_LINK_PREFIX => $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_link_prefix')
+            )->withValue(
+                $properties[self::F_LINK_PREFIX] ?? ''
+            ),
+        ];
+
+        // only add blocks filter input if activated.
+        if ($this->areFilterBlocksEnabled()) {
+            $inputs[self::F_BLOCKS_FILTER] = $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_filter_blocks'),
+                $this->getPlugin()->txt('form_info_filter_blocks')
+            )->withValue(
+                $properties[self::F_BLOCKS_FILTER] ?? ''
+            );
+        }
+
+        return $this->ui->factory()->input()->container()->form()->standard(
+            $this->ctrl->getFormActionByClass(
+                self::class,
+                (self::MODE_UPDATE === $this->getMode()) ? self::MODE_UPDATE : self::MODE_CREATE
+            ),
+            $inputs
+        );
+    }
+
     protected function processForm()
     {
         $form = $this->initForm();
         $form = $form->withRequest($this->http->request());
         $data = $form->getData();
 
-        if (!empty($data)) {
+        if (!empty($data) && null !== $data[self::F_EXTERNAL_MD]) {
             $properties = [
                 self::F_EXTERNAL_MD => $data[self::F_EXTERNAL_MD],
                 self::F_LINK_PREFIX => $data[self::F_LINK_PREFIX],
@@ -274,16 +249,22 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $properties[self::F_BLOCKS_FILTER] = $data[self::F_BLOCKS_FILTER];
             }
 
-            $this->updateElement($properties);
+            if (self::MODE_UPDATE === $this->getMode()) {
+                $this->updateElement($properties);
+            } else {
+                $this->createElement($properties);
+            }
+
             ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
             $this->returnToParent();
-        } else {
-            $this->tpl->setContent(
-                $this->ui->renderer()->render(
-                    $form
-                )
-            );
         }
+
+        ilUtil::sendFailure($this->getPlugin()->txt("msg_invalid_url"));
+        $this->tpl->setContent(
+            $this->ui->renderer()->render(
+                $form
+            )
+        );
     }
 
     protected function showForm()
@@ -293,6 +274,36 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $this->initForm()
             )
         );
+    }
+
+    /**
+     * @return \ILIAS\Transformation\Transformation
+     */
+    protected function getExternalUrlValidation()
+    {
+        $fn = static function ($value) {
+            if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
+                return $value;
+            }
+
+            return null;
+        };
+
+        if (!$this->isVersionBelowSix()) {
+            $this->refinery->custom()->transformation(
+                $this->getExternalUrlValidation()
+            );
+        }
+
+        return (new \ILIAS\Transformation\Factory())->custom($fn);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isVersionBelowSix()
+    {
+        return (1 >= version_compare('6.0', '5.4.123'));
     }
 
     /**
