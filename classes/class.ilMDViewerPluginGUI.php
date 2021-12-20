@@ -6,104 +6,103 @@ use Michelf\MarkdownExtra;
 
 /**
  * Class ilMDViewerPluginGUI
- * @author            Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solution>
+ * @author Thibeau Fuhrer <thibeau@sr.solutions>
  * @ilCtrl_isCalledBy ilMDViewerPluginGUI: ilPCPluggedGUI
  */
 class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 {
 
+    const F_LINK_PREFIX = 'link_prefix_url';
     const F_EXTERNAL_MD = 'external_md';
+    const F_BLOCKS_FILTER = 'filtered_blocks';
     const MODE_EDIT = 'edit';
     const MODE_PRESENTATION = 'presentation';
-    const F_LINK_PREFIX = 'link_prefix_url';
     const MODE_CREATE = "create";
     const MODE_UPDATE = 'update';
+    const CMD_CANCEL = 'cancel';
+
+    /**
+     * @var ilTemplate
+     */
+    protected $tpl;
+    /**
+     * @var \ILIAS\Refinery\Factory
+     */
+    protected $refinery;
+    /**
+     * @var ilObjUser
+     */
+    protected $user;
+    /**
+     * @var \ILIAS\DI\HTTPServices
+     */
+    protected $http;
+    /**
+     * @var ilCtrl
+     */
+    protected $ctrl;
+    /**
+     * @var \ILIAS\DI\UIServices
+     */
+    protected $ui;
+
+    public function __construct()
+    {
+        global $DIC;
+
+        $this->tpl = $DIC->ui()->mainTemplate();
+        $this->refinery = $DIC->refinery();
+        $this->user = $DIC->user();
+        $this->http = $DIC->http();
+        $this->ctrl = $DIC->ctrl();
+        $this->ui = $DIC->ui();
+
+        parent::__construct();
+    }
 
     public function executeCommand()
     {
-        global $ilCtrl;
-        /**
-         * @var $ilCtrl ilCtrl
-         */
+        $cmd = $this->ctrl->getCmd();
+        switch ($cmd) {
+            case self::MODE_PRESENTATION:
+            case self::CMD_CANCEL:
+                $this->{$cmd}();
+                break;
 
-        $next_class = $ilCtrl->getNextClass();
-
-        switch ($next_class) {
-            default:
-                // perform valid commands
-                $cmd = $ilCtrl->getCmd();
-                if (in_array($cmd, [
-                    self::MODE_CREATE,
-                    "save",
-                    self::MODE_EDIT,
-                    "edit2",
-                    self::MODE_UPDATE,
-                    "cancel",
-                ], true)
-                ) {
-                    $this->$cmd();
+            case self::MODE_EDIT:
+            case self::MODE_CREATE:
+            case self::MODE_UPDATE:
+                if (!$this->isUserAuthorized($this->user)) {
+                    $this->{$cmd}();
+                } else {
+                    $this->cancel();
                 }
                 break;
+
+            default:
+                throw new LogicException("'$cmd' not found in " . self::class);
         }
     }
 
     public function insert()
     {
-        global $tpl;
-
-        $form = $this->initForm(self::MODE_CREATE);
-        $tpl->setContent($form->getHTML());
-    }
-
-    public function create()
-    {
-        global $tpl;
-
-        $form = $this->initForm(self::MODE_CREATE);
-        if ($form->checkInput()) {
-            $properties = array(
-                self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
-                self::F_LINK_PREFIX => $form->getInput(self::F_LINK_PREFIX),
-            );
-            if ($this->createElement($properties)) {
-                ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
-                $this->returnToParent();
-            }
-        }
-
-        $form->setValuesByPost();
-
-        $tpl->setContent($form->getHTML());
+        $this->showForm();
     }
 
     public function edit()
     {
-        global $tpl;
+        $this->showForm();
+    }
 
-        $form = $this->initForm(self::MODE_UPDATE);
-        $form->setValuesByArray($this->getProperties());
-        $tpl->setContent($form->getHTML());
+    public function create()
+    {
+        $this->processForm();
     }
 
     public function update()
     {
-        global $tpl;
-
-        $form = $this->initForm(self::MODE_UPDATE);
-        if ($form->checkInput()) {
-            $properties = array(
-                self::F_EXTERNAL_MD => $form->getInput(self::F_EXTERNAL_MD),
-                self::F_LINK_PREFIX => $form->getInput(self::F_LINK_PREFIX),
-            );
-            if ($this->updateElement($properties)) {
-                ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
-                $this->returnToParent();
-            }
-        }
-
-        $form->setValuesByPost();
-
-        $tpl->setContent($form->getHTML());
+        $this->processForm();
     }
 
     public function cancel()
@@ -112,81 +111,204 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     }
 
     /**
-     * Get HTML for element
-     * @param       $a_mode
+     * @param string $a_mode
      * @param array $a_properties
-     * @param       $a_plugin_version
-     * @return mixed
+     * @param string $a_plugin_version
+     * @return string
      */
     public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
     {
-        global $DIC;
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
-        switch ($a_mode) {
-            case self::MODE_EDIT:
-                //$glyph = $renderer->render($factory->symbol()->glyph()->settings());
-
-                return $glyph . $a_properties[self::F_EXTERNAL_MD];
-            case self::MODE_PRESENTATION:
-            default:
-                $external_file = $a_properties[self::F_EXTERNAL_MD];
-                $link_prefix = $a_properties[self::F_LINK_PREFIX];
-                $link_prefix = strlen($link_prefix) > 0 ? $link_prefix : rtrim(dirname($external_file), "/") . "/";
-                $external_content_raw = @file_get_contents($external_file);
-                /**
-                 * @var $tpl ilTemplate
-                 */
-                $tpl = $this->getPlugin()->getTemplate('tpl.output.html');
-
-                $parser = new MarkdownExtra();
-                $parser->url_filter_func = static function ($url) use ($link_prefix) {
-                    switch (true) {
-                        case strpos($url, '..') === 0:
-                            return $link_prefix . $url;
-                        case strpos($url, '.') === 0:
-                            return $link_prefix . $url;
-                        case strpos($url, '#') === 0:
-                        default:
-                            return $url;
-                    }
-                };
-
-                $tpl->setVariable('MD_CONTENT', $parser->transform($external_content_raw));
-                $tpl->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
-                $tpl->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
-                $tpl->setVariable('HREF_ORIGINAL', $external_file);
-                $tpl->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
-
-                return $tpl->get();
+        if (self::MODE_PRESENTATION !== $a_mode) {
+            return $a_properties[self::F_EXTERNAL_MD];
         }
+
+        /** @var $template ilTemplate */
+        $template = $this->getPlugin()->getTemplate('tpl.output.html');
+        $external_file = $a_properties[self::F_EXTERNAL_MD];
+        $link_prefix = $a_properties[self::F_LINK_PREFIX];
+        $link_prefix = ('' === $link_prefix) ?
+            rtrim(dirname($external_file), "/") . "/" :
+            $link_prefix
+        ;
+
+        $external_content_raw = @file_get_contents($external_file);
+        if ($this->areFilterBlocksEnabled() && '' !== $this->stripWhitespaces($a_properties[self::F_BLOCKS_FILTER])) {
+            $external_content_raw = $this->filterRawContentString(
+                $external_content_raw,
+                explode(',', $a_properties[self::F_BLOCKS_FILTER])
+            );
+        }
+
+        $parser = new MarkdownExtra();
+        $parser->url_filter_func = static function ($url) use ($link_prefix) {
+            switch (true) {
+                case (strpos($url, '.') === 0):
+                case (strpos($url, '..') === 0):
+                    return $link_prefix . $url;
+                case (strpos($url, '#') === 0):
+                default:
+                    return $url;
+            }
+        };
+
+        $template->setVariable('MD_CONTENT', $parser->transform($external_content_raw));
+        $template->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
+        $template->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
+        $template->setVariable('HREF_ORIGINAL', $external_file);
+        $template->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
+
+        return $template->get();
     }
 
     /**
-     * @param string $mode create or update
-     * @return \ilPropertyFormGUI
+     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
      */
-    protected function initForm($mode = self::MODE_CREATE)
+    protected function initForm()
     {
-        global $ilCtrl;
-        /**
-         * @var $ilCtrl ilCtrl
-         */
-        require_once('./Services/Form/classes/class.ilPropertyFormGUI.php');
-        $form = new ilPropertyFormGUI();
-        $form->setTitle($this->getPlugin()->txt('form_title'));
-        $form->addCommandButton($mode, $this->getPlugin()->txt("form_button_" . $mode));
-        $form->addCommandButton("cancel", $this->getPlugin()->txt("form_button_cancel"));
-        $form->setFormAction($ilCtrl->getFormAction($this));
+        $properties = $this->getProperties();
+        $inputs = [
+            self::F_EXTERNAL_MD => $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_md')
+            )->withAdditionalTransformation(
+                $this->refinery->custom()->transformation(
+                    $this->getExternalUrlValidation()
+                )
+            )->withValue(
+                $properties[self::F_EXTERNAL_MD] ?? ''
+            )->withRequired(
+                true
+            ),
 
-        $md = new ilTextInputGUI($this->getPlugin()->txt('form_md'), self::F_EXTERNAL_MD);
-        $md->setValidationRegexp('/^https\\:\\/\\/raw\\.githubusercontent.com\\/ILIAS-.*\\.md/uUm');
-        $md->setValidationFailureMessage('Only File ending with .md hosted somewhere beneath https://raw.githubusercontent.com/ILIAS-... are allowed');
-        $form->addItem($md);
+            self::F_LINK_PREFIX => $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_link_prefix')
+            )->withValue(
+                $properties[self::F_LINK_PREFIX] ?? ''
+            ),
+        ];
 
-        $md = new ilTextInputGUI($this->getPlugin()->txt('form_link_prefix'), self::F_LINK_PREFIX);
-        $form->addItem($md);
+        // only add blocks filter input if activated.
+        if ($this->areFilterBlocksEnabled()) {
+            $inputs[self::F_BLOCKS_FILTER] = $this->ui->factory()->input()->field()->text(
+                $this->getPlugin()->txt('form_filter_blocks'),
+                $this->getPlugin()->txt('form_info_filter_blocks')
+            )->withValue(
+                $properties[self::F_BLOCKS_FILTER] ?? ''
+            );
+        }
 
-        return $form;
+        return $this->ui->factory()->input()->container()->form()->standard(
+            $this->ctrl->getFormActionByClass(self::class, self::MODE_UPDATE),
+            $inputs
+        );
+    }
+
+    /**
+     * @param ilObjUser $user
+     * @return bool
+     */
+    protected function isUserAuthorized($user)
+    {
+        $authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
+        if (!empty($authorized_roles)) {
+            // not using strict comparison here because I don't trust ilMDViewerConfig.
+            return in_array($user->getId(), $authorized_roles);
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Closure
+     */
+    protected function getExternalUrlValidation()
+    {
+        return static function ($value) {
+            if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
+                return $value;
+            }
+
+            return null;
+        };
+    }
+
+    /**
+     * @param string $raw_content
+     * @param array $blocks
+     * @return string
+     */
+    protected function filterRawContentString($raw_content, $blocks)
+    {
+        // regex pattern matches anything in between '<!-- BEGIN <block name> -->' and '<!-- END <block name> -->'.
+        // '{BLOCK_NAME}' has to be replaced with the actual block name.
+        $regex_template = '/(?<=(<!--\sBEGIN\s{BLOCK_NAME}\s-->))([\s\S]*)(?=(<!--\sEND\s{BLOCK_NAME}\s-->))/';
+
+        $content = '';
+        foreach ($blocks as $block) {
+            // strip whitespaces and only process block if it's not empty.
+            $block = $this->stripWhitespaces($block);
+            if ('' !== $block) {
+                $regex = str_replace('{BLOCK_NAME}', $block, $regex_template);
+                preg_match($regex, $raw_content, $matches);
+                if (!empty($matches[0])) {
+                    $content .= $matches[0];
+                }
+            }
+        }
+
+        return $content;
+    }
+
+    protected function processForm()
+    {
+        $form = $this->initForm();
+        $form = $form->withRequest($this->http->request());
+        $data = $form->getData();
+
+        if (!empty($data)) {
+            $properties = [
+                self::F_EXTERNAL_MD => $data[self::F_EXTERNAL_MD],
+                self::F_LINK_PREFIX => $data[self::F_LINK_PREFIX],
+            ];
+
+            if ($this->areFilterBlocksEnabled()) {
+                $properties[self::F_BLOCKS_FILTER] = $data[self::F_BLOCKS_FILTER];
+            }
+
+            $this->updateElement($properties);
+            ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
+            $this->returnToParent();
+        } else {
+            $this->tpl->setContent(
+                $this->ui->renderer()->render(
+                    $form
+                )
+            );
+        }
+    }
+
+    protected function showForm()
+    {
+        $this->tpl->setContent(
+            $this->ui->renderer()->render(
+                $this->initForm()
+            )
+        );
+    }
+
+    /**
+     * @return bool
+     */
+    protected function areFilterBlocksEnabled()
+    {
+        return (bool) ilMDViewerConfig::get(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE);
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    protected function stripWhitespaces($string)
+    {
+        return (string) preg_replace('/\s/', '', $string);
     }
 }

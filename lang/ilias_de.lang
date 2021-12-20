@@ -4,6 +4,8 @@ form_md#:#Externe Markdown-Datei
 form_button_update#:#Speichern
 form_button_create#:#Speichern
 form_link_prefix#:#Link-Prefix
+form_filter_blocks#:#Blöcke filtern
+form_info_filter_blocks#:#Zeige nur Blöcke der Datei an, die hier mit Namen kommasepariert (,) aufgelistet sind.
 msg_saved#:#Gespeichert
 cmd_insert#:#Neue externe Markdown-Datei einbinden
 box_title#:#informationen zum nachfolgenden Inhalt
@@ -13,3 +15,5 @@ box_outro_text#:#Der Inhalt oberhalb dieser Meldung wird auf einer externen Date
 config_configuration#:#Konfiguration
 config_authorized_roles#:#Berechtigte Rollen
 config_info_authorized_roles#:#Rollen, welche zugewiesene Benutzer zur Verwendung der Funktionalität des MDViewer-Plugins berechtigen.
+config_blocks_filter#:#Block Filter aktiv?
+config_info_blocks_filter#:#Aktiviert das Filtern von bestimmten Blöcken einer MD-Datei beim Einbinden in einer COPage.

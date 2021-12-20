@@ -12,3 +12,11 @@ ilMDViewerConfig::set(
 	["2"]
 );
 ?>
+<#3>
+<?php
+include_once "Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/classes/class.ilMDViewerConfig.php";
+ilMDViewerConfig::set(
+    ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE,
+    true
+);
+?>
