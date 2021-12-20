@@ -9,6 +9,7 @@ class ilMDViewerConfig extends ActiveRecord
 
     const TABLE_NAME = 'md_tme_config';
     const KEY_IDS_OF_AUTHORIZED_ROLES = "ids_of_authorized_roles";
+    const KEY_MD_BLOCKS_FILTER_ACTIVE = 'md_blocks_filter_active';
 
     /**
      * @return string
