@@ -57,7 +57,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
 
-        if (!$this->isVersionBelowSix()) {
+        if ($this->isVersionAboveSix()) {
             $this->refinery = $DIC->refinery();
         }
 
@@ -227,7 +227,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $this->ui->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormActionByClass(
                 self::class,
-                (self::MODE_UPDATE === $this->getMode()) ? self::MODE_UPDATE : self::MODE_CREATE
+                (self::MODE_CREATE !== $this->getMode()) ? self::MODE_UPDATE : self::MODE_CREATE
             ),
             $inputs
         );
@@ -249,7 +249,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $properties[self::F_BLOCKS_FILTER] = $data[self::F_BLOCKS_FILTER];
             }
 
-            if (self::MODE_UPDATE === $this->getMode()) {
+            if (self::MODE_CREATE !== $this->getMode()) {
                 $this->updateElement($properties);
             } else {
                 $this->createElement($properties);
@@ -277,7 +277,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     }
 
     /**
-     * @return \ILIAS\Transformation\Transformation
+     * @return \ILIAS\Transformation\Transformation|\ILIAS\Refinery\Transformation
      */
     protected function getExternalUrlValidation()
     {
@@ -289,9 +289,9 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             return null;
         };
 
-        if (!$this->isVersionBelowSix()) {
-            $this->refinery->custom()->transformation(
-                $this->getExternalUrlValidation()
+        if ($this->isVersionAboveSix()) {
+            return $this->refinery->custom()->transformation(
+                $fn
             );
         }
 
@@ -301,9 +301,9 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     /**
      * @return bool
      */
-    protected function isVersionBelowSix()
+    protected function isVersionAboveSix()
     {
-        return (1 >= version_compare('6.0', '5.4.123'));
+        return (bool) version_compare('6.0', ILIAS_VERSION_NUMERIC, '<=');
     }
 
     /**
