@@ -12,6 +12,23 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     const CMD_CONFIGURE = 'configure';
     const CMD_SAVE = 'save';
     const CMD_CANCEL = 'cancel';
+
+    /**
+     * @var \ILIAS\DI\HTTPServices
+     */
+    protected $http;
+    /**
+     * @var \ILIAS\DI\RBACServices
+     */
+    protected $rbac;
+    /**
+     * @var ilMDViewerPlugin
+     */
+    protected $plugin;
+    /**
+     * @var \ILIAS\DI\UIServices
+     */
+    protected $ui;
     /**
      * @var ilCtrl
      */
@@ -24,10 +41,6 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
      * @var ilTemplate
      */
     protected $tpl;
-    /**
-     * @var ilPropertyFormGUI
-     */
-    private $config_form;
 
     /**
      * ilMDViewerConfigGUI constructor.
@@ -39,6 +52,10 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
         $this->tpl = $DIC->ui()->mainTemplate();
+        $this->http = $DIC->http();
+        $this->rbac = $DIC->rbac();
+        $this->plugin = $this->getPluginObject() ?? (new ilMDViewerPlugin());
+        $this->ui = $DIC->ui();
     }
 
     /**
@@ -60,9 +77,11 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
      */
     public function configure()
     {
-        $this->initForm();
-        $this->fillForm();
-        $this->tpl->setContent($this->config_form->getHTML());
+        $this->tpl->setContent(
+            $this->ui->renderer()->render(
+                $this->initForm()
+            )
+        );
     }
 
     /**
@@ -70,12 +89,27 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
      */
     public function save()
     {
-        ilMDViewerConfig::set(
-            ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES,
-            $_POST[ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES]
+        $form = $this->initForm();
+        $form = $form->withRequest($this->http->request());
+        $data = $form->getData();
+
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                ilMDViewerConfig::set(
+                    $key,
+                    $value
+                );
+            }
+
+            ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
+            $this->ctrl->redirect($this, self::CMD_CONFIGURE);
+        }
+
+        $this->tpl->setContent(
+            $this->ui->renderer()->render(
+                $form
+            )
         );
-        ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
-        $this->ctrl->redirect($this, self::CMD_CONFIGURE);
     }
 
     /**
@@ -88,40 +122,53 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
 
     /**
      * Initialize configuration-form
+     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
      */
     protected function initForm()
     {
-        // form
-        $this->config_form = new ilPropertyFormGUI();
-        $this->config_form->setFormAction($this->ctrl->getFormAction($this));
-        $this->config_form->setTitle($this->getPluginObject()->txt('config_configuration'));
+        return $this->ui->factory()->input()->container()->form()->standard(
+            $this->ctrl->getFormActionByClass(self::class, self::CMD_SAVE),
+            [
+                // multi select input for roles that shall be allowed to use the plugin.
+                ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES => $this->ui->factory()->input()->field()->multiSelect(
+                    $this->plugin->txt('config_authorized_roles'),
+                    $this->getConfigurableRoles()
+                )->withByline(
+                    $this->plugin->txt('config_info_authorized_roles')
+                )->withValue(
+                    ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES) ?? ''
+                ),
 
-        // multi select input for roles that shall be allowed to use the plugin
-        $authorized_roles = new ilMultiSelectInputGUI(
-            $this->getPluginObject()->txt("config_authorized_roles"),
-            ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES
+                // checkbox input for activating the blocks filter.
+                ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE => $this->ui->factory()->input()->field()->checkbox(
+                    $this->plugin->txt('config_blocks_filter')
+                )->withByline(
+                    $this->plugin->txt('config_info_blocks_filter')
+                )->withValue(
+                    ilMDViewerConfig::get(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE) ?? false
+                ),
+            ]
         );
-        $authorized_roles->setOptions(self::getRoles(ilRbacReview::FILTER_ALL_GLOBAL));
-        $authorized_roles->setInfo($this->getPluginObject()->txt("config_info_authorized_roles"));
-        $authorized_roles->setRequired(true);
-        $this->config_form->addItem($authorized_roles);
-
-        // save and cancel buttons
-        $this->config_form->addCommandButton(self::CMD_SAVE, $this->lng->txt('save'));
-        $this->config_form->addCommandButton(self::CMD_CANCEL, $this->lng->txt('cancel'));
-    }
-
-    public function fillForm()
-    {
-        $array = array(
-            ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES => ilMDViewerConfig::get(
-                ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES
-            ),
-        );
-        $this->config_form->setValuesByArray($array);
     }
 
     /**
+     * @return array<int, string>
+     */
+    protected function getConfigurableRoles()
+    {
+        $roles = [];
+        foreach ($this->rbac->review()->getRolesByFilter(ilRbacReview::FILTER_ALL) as $role_data) {
+            $role_name = ilObjRole::_getTranslation($role_data['title']);
+            $role_id = (int) $role_data['obj_id'];
+
+            $roles[$role_id] = $role_name;
+        }
+
+        return $roles;
+    }
+
+    /**
+     * @deprecated
      * @param int  $filter
      * @param bool $with_text
      * @return array
