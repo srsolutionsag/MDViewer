@@ -56,10 +56,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $this->http = $DIC->http();
         $this->ctrl = $DIC->ctrl();
         $this->ui = $DIC->ui();
-
-        if ($this->isVersionAboveSix()) {
-            $this->refinery = $DIC->refinery();
-        }
+        $this->refinery = $DIC->refinery();
 
         parent::__construct();
     }
@@ -281,29 +278,13 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      */
     protected function getExternalUrlValidation()
     {
-        $fn = static function ($value) {
+        return $this->refinery->custom()->transformation(static function ($value) {
             if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
                 return $value;
             }
 
             return null;
-        };
-
-        if ($this->isVersionAboveSix()) {
-            return $this->refinery->custom()->transformation(
-                $fn
-            );
-        }
-
-        return (new \ILIAS\Transformation\Factory())->custom($fn);
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isVersionAboveSix()
-    {
-        return (bool) version_compare('6.0', ILIAS_VERSION_NUMERIC, '<=');
+        });
     }
 
     /**
