@@ -18,7 +18,8 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const F_EXTERNAL_MD = 'external_md';
     const F_BLOCKS_FILTER = 'filtered_blocks';
     const MODE_EDIT = 'edit';
-    const MODE_PRESENTATION = 'preview';
+    const MODE_PREVIEW = 'preview';
+    const MODE_PRESENTATION = 'presentation';
     const MODE_CREATE = "create";
     const MODE_UPDATE = 'update';
     const CMD_CANCEL = 'cancel';
@@ -66,7 +67,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
-            case self::MODE_PRESENTATION:
+            case self::MODE_PREVIEW:
             case self::CMD_CANCEL:
                 $this->{$cmd}();
                 break;
@@ -119,7 +120,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
     {
-        if (self::MODE_PRESENTATION !== $a_mode) {
+        if (!$this->isPresentationMode($a_mode)) {
             return $a_properties[self::F_EXTERNAL_MD];
         }
 
@@ -287,7 +288,18 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 
     protected function isCreationMode() : bool
     {
-        return (ilPageComponentPlugin::CMD_INSERT === $this->getMode());
+        return (
+            ilPageComponentPlugin::CMD_INSERT === $this->getMode() ||
+            self::MODE_CREATE === $this->ctrl->getCmd()
+        );
+    }
+
+    protected function isPresentationMode($mode) : bool
+    {
+        return (
+            self::MODE_PRESENTATION === $mode ||
+            self::MODE_PREVIEW === $mode
+        );
     }
 
     /**
