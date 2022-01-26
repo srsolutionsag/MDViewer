@@ -3,6 +3,7 @@ include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
 require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
 
 use Michelf\MarkdownExtra;
+use ILIAS\Refinery\Transformation;
 
 /**
  * Class ilMDViewerPluginGUI
@@ -17,6 +18,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const F_EXTERNAL_MD = 'external_md';
     const F_BLOCKS_FILTER = 'filtered_blocks';
     const MODE_EDIT = 'edit';
+    const MODE_PREVIEW = 'preview';
     const MODE_PRESENTATION = 'presentation';
     const MODE_CREATE = "create";
     const MODE_UPDATE = 'update';
@@ -65,7 +67,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     {
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
-            case self::MODE_PRESENTATION:
+            case self::MODE_PREVIEW:
             case self::CMD_CANCEL:
                 $this->{$cmd}();
                 break;
@@ -118,7 +120,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      */
     public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
     {
-        if (self::MODE_PRESENTATION !== $a_mode) {
+        if (!$this->isPresentationMode($a_mode)) {
             return $a_properties[self::F_EXTERNAL_MD];
         }
 
@@ -224,7 +226,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $this->ui->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormActionByClass(
                 self::class,
-                (self::MODE_CREATE !== $this->getMode()) ? self::MODE_UPDATE : self::MODE_CREATE
+                ($this->isCreationMode()) ? self::MODE_CREATE : self::MODE_UPDATE
             ),
             $inputs
         );
@@ -246,10 +248,10 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $properties[self::F_BLOCKS_FILTER] = $data[self::F_BLOCKS_FILTER];
             }
 
-            if (self::MODE_CREATE !== $this->getMode()) {
-                $this->updateElement($properties);
-            } else {
+            if ($this->isCreationMode()) {
                 $this->createElement($properties);
+            } else {
+                $this->updateElement($properties);
             }
 
             ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
@@ -273,10 +275,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    /**
-     * @return \ILIAS\Transformation\Transformation|\ILIAS\Refinery\Transformation
-     */
-    protected function getExternalUrlValidation()
+    protected function getExternalUrlValidation() : Transformation
     {
         return $this->refinery->custom()->transformation(static function ($value) {
             if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
@@ -285,6 +284,22 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 
             return null;
         });
+    }
+
+    protected function isCreationMode() : bool
+    {
+        return (
+            ilPageComponentPlugin::CMD_INSERT === $this->getMode() ||
+            self::MODE_CREATE === $this->ctrl->getCmd()
+        );
+    }
+
+    protected function isPresentationMode($mode) : bool
+    {
+        return (
+            self::MODE_PRESENTATION === $mode ||
+            self::MODE_PREVIEW === $mode
+        );
     }
 
     /**
