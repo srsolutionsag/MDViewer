@@ -3,6 +3,7 @@ include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
 require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
 
 use Michelf\MarkdownExtra;
+use ILIAS\Refinery\Transformation;
 
 /**
  * Class ilMDViewerPluginGUI
@@ -17,7 +18,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const F_EXTERNAL_MD = 'external_md';
     const F_BLOCKS_FILTER = 'filtered_blocks';
     const MODE_EDIT = 'edit';
-    const MODE_PRESENTATION = 'presentation';
+    const MODE_PRESENTATION = 'preview';
     const MODE_CREATE = "create";
     const MODE_UPDATE = 'update';
     const CMD_CANCEL = 'cancel';
@@ -224,7 +225,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $this->ui->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormActionByClass(
                 self::class,
-                (self::MODE_CREATE !== $this->getMode()) ? self::MODE_UPDATE : self::MODE_CREATE
+                ($this->isCreationMode()) ? self::MODE_CREATE : self::MODE_UPDATE
             ),
             $inputs
         );
@@ -246,10 +247,10 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $properties[self::F_BLOCKS_FILTER] = $data[self::F_BLOCKS_FILTER];
             }
 
-            if (self::MODE_CREATE !== $this->getMode()) {
-                $this->updateElement($properties);
-            } else {
+            if ($this->isCreationMode()) {
                 $this->createElement($properties);
+            } else {
+                $this->updateElement($properties);
             }
 
             ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
@@ -273,10 +274,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    /**
-     * @return \ILIAS\Transformation\Transformation|\ILIAS\Refinery\Transformation
-     */
-    protected function getExternalUrlValidation()
+    protected function getExternalUrlValidation() : Transformation
     {
         return $this->refinery->custom()->transformation(static function ($value) {
             if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
@@ -285,6 +283,11 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 
             return null;
         });
+    }
+
+    protected function isCreationMode() : bool
+    {
+        return (ilPageComponentPlugin::CMD_INSERT === $this->getMode());
     }
 
     /**
