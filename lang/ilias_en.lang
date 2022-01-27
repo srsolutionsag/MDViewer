@@ -1,11 +1,13 @@
 form_title#:#External Markdown-File
 form_button_cancel#:#Cancel
 form_md#:#External Markdown-File
+form_md_info#:#URL must be from https://raw.githubusercontent.com/...
 form_button_update#:#Save
 form_button_create#:#Save
 form_link_prefix#:#Link-Prefix
 form_filter_blocks#:#Filter blocks
 form_info_filter_blocks#:#Only show content blocks which are listed here (separated by comma (,)).
+form_show_source#:#Show source?
 msg_saved#:#Saved
 msg_invalid_url#:#External source must begin with 'https://raw.githubusercontent.com/ILIAS' and end on '.md'.
 cmd_insert#:#Include external MD-File
