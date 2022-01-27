@@ -17,6 +17,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     const F_LINK_PREFIX = 'link_prefix_url';
     const F_EXTERNAL_MD = 'external_md';
     const F_BLOCKS_FILTER = 'filtered_blocks';
+    const F_SHOW_SOURCE = 'show_source';
     const MODE_EDIT = 'edit';
     const MODE_PREVIEW = 'preview';
     const MODE_PRESENTATION = 'presentation';
@@ -125,7 +126,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         }
 
         /** @var $template ilTemplate */
-        $template = $this->getPlugin()->getTemplate('tpl.output.html');
+        $template = $this->getPlugin()->getTemplate('tpl.output.html', true, true);
         $external_file = $a_properties[self::F_EXTERNAL_MD];
         $link_prefix = $a_properties[self::F_LINK_PREFIX];
         $link_prefix = ('' === $link_prefix) ?
@@ -154,10 +155,13 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         };
 
         $template->setVariable('MD_CONTENT', $parser->transform($external_content_raw));
-        $template->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
-        $template->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
-        $template->setVariable('HREF_ORIGINAL', $external_file);
-        $template->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
+
+        if (isset($a_properties[self::F_SHOW_SOURCE]) && '' !== $a_properties[self::F_SHOW_SOURCE]) {
+            $template->setVariable('TEXT_INTRO', $this->getPlugin()->txt('box_intro_text'));
+            $template->setVariable('TEXT_OUTRO', $this->getPlugin()->txt('box_outro_text'));
+            $template->setVariable('HREF_ORIGINAL', $external_file);
+            $template->setVariable('TEXT_ORIGINAL', $this->getPlugin()->txt('box_button_open'));
+        }
 
         return $template->get();
     }
@@ -197,7 +201,8 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $properties = $this->getProperties();
         $inputs = [
             self::F_EXTERNAL_MD => $this->ui->factory()->input()->field()->text(
-                $this->getPlugin()->txt('form_md')
+                $this->getPlugin()->txt('form_md'),
+                $this->getPlugin()->txt('form_md_info')
             )->withAdditionalTransformation(
                 $this->getExternalUrlValidation()
             )->withValue(
@@ -223,6 +228,12 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             );
         }
 
+        $inputs[self::F_SHOW_SOURCE] = $this->ui->factory()->input()->field()->checkbox(
+            $this->getPlugin()->txt('form_show_source')
+        )->withValue(
+            (bool) ($properties[self::F_SHOW_SOURCE] ?? true)
+        );
+
         return $this->ui->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormActionByClass(
                 self::class,
@@ -242,6 +253,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             $properties = [
                 self::F_EXTERNAL_MD => $data[self::F_EXTERNAL_MD],
                 self::F_LINK_PREFIX => $data[self::F_LINK_PREFIX],
+                self::F_SHOW_SOURCE => $data[self::F_SHOW_SOURCE],
             ];
 
             if ($this->areFilterBlocksEnabled()) {
