@@ -173,9 +173,9 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
      */
     protected function filterRawContentString($raw_content, $blocks)
     {
-        // regex pattern matches anything in between '<!-- BEGIN <block name> -->' and '<!-- END <block name> -->'.
+        // regex pattern matches anything in between '[//]: # (BEGIN <block name>)' and '[//]: # (END <block name>)'.
         // '{BLOCK_NAME}' has to be replaced with the actual block name.
-        $regex_template = '/(?<=(<!--\sBEGIN\s{BLOCK_NAME}\s-->))([\s\S]*)(?=(<!--\sEND\s{BLOCK_NAME}\s-->))/';
+        $regex_template = '/(?<=(\[\/\/\]:\s#\s\(BEGIN\s{BLOCK_NAME}\)))([\s\S]*)(?=(\[\/\/\]:\s#\s\(END\s{BLOCK_NAME}\)))/';
 
         $content = '';
         foreach ($blocks as $block) {
