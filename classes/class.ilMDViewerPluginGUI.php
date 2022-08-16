@@ -181,6 +181,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         foreach ($blocks as $block) {
             // strip whitespaces and only process block if it's not empty.
             $block = $this->stripWhitespaces($block);
+            $block = preg_quote($block, '\\');
             if ('' !== $block) {
                 $regex = str_replace('{BLOCK_NAME}', $block, $regex_template);
                 preg_match($regex, $raw_content, $matches);
