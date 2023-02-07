@@ -4,7 +4,8 @@ require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewe
 
 /**
  * Class ilMDViewerPlugin
- * @author Fabian Schmid <fs@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions>
+ * @author Thibeau Fuhrer <thibeau@sr.solutions>
  */
 class ilMDViewerPlugin extends ilPageComponentPlugin
 {

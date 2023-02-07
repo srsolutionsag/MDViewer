@@ -4,7 +4,8 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilMDViewerConfigGUI
- * @author studer + raimann ag - Team Core 1 <support-core1@studer-raimann.ch>
+ * @author Fabian Schmid <fabian@sr.solutions>
+ * @author Thibeau Fuhrer <thibeau@sr.solutions>
  */
 class ilMDViewerConfigGUI extends ilPluginConfigGUI
 {
