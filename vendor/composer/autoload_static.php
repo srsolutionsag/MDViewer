@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3
+class ComposerStaticInit65aece0a5f44377221f1ed783fa7510b
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -21,6 +21,7 @@ class ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'ilMDViewerConfig' => __DIR__ . '/../..' . '/classes/class.ilMDViewerConfig.php',
         'ilMDViewerConfigGUI' => __DIR__ . '/../..' . '/classes/class.ilMDViewerConfigGUI.php',
         'ilMDViewerPlugin' => __DIR__ . '/../..' . '/classes/class.ilMDViewerPlugin.php',
@@ -30,9 +31,9 @@ class ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitbc8a7079188cc8e57bff763c0dcb24a3::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit65aece0a5f44377221f1ed783fa7510b::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit65aece0a5f44377221f1ed783fa7510b::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit65aece0a5f44377221f1ed783fa7510b::$classMap;
 
         }, null, ClassLoader::class);
     }
