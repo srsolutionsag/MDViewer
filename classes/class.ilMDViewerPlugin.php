@@ -21,8 +21,11 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
     {
         global $DIC;
         parent::__construct($db, $component_repository, $id);
-        $this->user = $DIC->user();
-        $this->rbacreview = $DIC->rbac()->review();
+
+        if ($DIC->offsetExists('ilUser') && $DIC->offsetExists('rbacreview')) {
+            $this->user = $DIC->user();
+            $this->rbacreview = $DIC->rbac()->review();
+        }
     }
 
     public function isValidParentType(string $a_type): bool
