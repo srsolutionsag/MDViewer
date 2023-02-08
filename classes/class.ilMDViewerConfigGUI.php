@@ -1,51 +1,36 @@
 <?php
 
+use ILIAS\HTTP\GlobalHttpState;
+
 require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilMDViewerConfigGUI
  * @author Fabian Schmid <fabian@sr.solutions>
  * @author Thibeau Fuhrer <thibeau@sr.solutions>
+ *
+ * @ilCtrl_isCalledBy ilMDViewerConfigGUI: ilObjComponentSettingsGUI
  */
 class ilMDViewerConfigGUI extends ilPluginConfigGUI
 {
+    public const CMD_CONFIGURE = 'configure';
+    public const CMD_SAVE = 'save';
+    public const CMD_CANCEL = 'cancel';
 
-    const CMD_CONFIGURE = 'configure';
-    const CMD_SAVE = 'save';
-    const CMD_CANCEL = 'cancel';
+    protected GlobalHttpState $http;
 
-    /**
-     * @var \ILIAS\DI\HTTPServices
-     */
-    protected $http;
-    /**
-     * @var \ILIAS\DI\RBACServices
-     */
-    protected $rbac;
-    /**
-     * @var ilMDViewerPlugin
-     */
-    protected $plugin;
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var ilLanguage
-     */
-    private $lng;
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
+    protected \ILIAS\DI\RBACServices $rbac;
 
-    /**
-     * ilMDViewerConfigGUI constructor.
-     */
+    protected ?\ilMDViewerPlugin $plugin = null;
+
+    protected \ILIAS\DI\UIServices $ui;
+
+    protected ilCtrl $ctrl;
+
+    private ilLanguage $lng;
+
+    protected ilGlobalTemplateInterface $tpl;
+
     public function __construct()
     {
         global $DIC;
@@ -55,14 +40,13 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->http = $DIC->http();
         $this->rbac = $DIC->rbac();
-        $this->plugin = $this->getPluginObject() ?? (new ilMDViewerPlugin());
+        $this->plugin = $this->getPluginObject()?? $DIC["component.factory"]->getPlugin(
+            ilMDViewerPlugin::PLUGIN_ID
+        );
         $this->ui = $DIC->ui();
     }
 
-    /**
-     * @param string $cmd
-     */
-    public function performCommand($cmd)
+    public function performCommand(string $cmd): void
     {
         switch ($cmd) {
             case self::CMD_CONFIGURE:
@@ -76,7 +60,7 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     /**
      * Show configuration page
      */
-    public function configure()
+    public function configure(): void
     {
         $this->tpl->setContent(
             $this->ui->renderer()->render(
@@ -88,7 +72,7 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     /**
      * Save configuration
      */
-    public function save()
+    public function save(): void
     {
         $form = $this->initForm();
         $form = $form->withRequest($this->http->request());
@@ -96,13 +80,13 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
 
         if (!empty($data)) {
             foreach ($data as $key => $value) {
-                ilMDViewerConfig::set(
+                ilMDViewerConfig::setConfigValue(
                     $key,
                     $value
                 );
             }
 
-            ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
+            $this->tpl->setOnScreenMessage('success', $this->lng->txt('saved_successfully'), true);
             $this->ctrl->redirect($this, self::CMD_CONFIGURE);
         }
 
@@ -116,16 +100,15 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     /**
      * Return to plugin list
      */
-    public function cancel()
+    public function cancel(): void
     {
         $this->ctrl->redirectByClass(ilObjComponentSettingsGUI::class);
     }
 
     /**
      * Initialize configuration-form
-     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
      */
-    protected function initForm()
+    protected function initForm(): \ILIAS\UI\Component\Input\Container\Form\Standard
     {
         return $this->ui->factory()->input()->container()->form()->standard(
             $this->ctrl->getFormActionByClass(self::class, self::CMD_SAVE),
@@ -137,7 +120,7 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
                 )->withByline(
                     $this->plugin->txt('config_info_authorized_roles')
                 )->withValue(
-                    ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES) ?? ''
+                    ilMDViewerConfig::getConfigValue(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES) ?? []
                 ),
 
                 // checkbox input for activating the blocks filter.
@@ -146,7 +129,7 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
                 )->withByline(
                     $this->plugin->txt('config_info_blocks_filter')
                 )->withValue(
-                    ilMDViewerConfig::get(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE) ?? false
+                    ilMDViewerConfig::getConfigValue(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE) ?? false
                 ),
             ]
         );
@@ -155,7 +138,7 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
     /**
      * @return array<int, string>
      */
-    protected function getConfigurableRoles()
+    protected function getConfigurableRoles(): array
     {
         $roles = [];
         foreach ($this->rbac->review()->getRolesByFilter(ilRbacReview::FILTER_ALL) as $role_data) {
@@ -166,27 +149,5 @@ class ilMDViewerConfigGUI extends ilPluginConfigGUI
         }
 
         return $roles;
-    }
-
-    /**
-     * @deprecated
-     * @param int  $filter
-     * @param bool $with_text
-     * @return array
-     */
-    public static function getRoles($filter, $with_text = true)
-    {
-        global $DIC;
-        $opt = array(0 => 'Login');
-        $role_ids = array(0);
-        foreach ($DIC->rbac()->review()->getRolesByFilter($filter) as $role) {
-            $opt[$role['obj_id']] = $role['title'] . ' (' . $role['obj_id'] . ')';
-            $role_ids[] = $role['obj_id'];
-        }
-        if ($with_text) {
-            return $opt;
-        } else {
-            return $role_ids;
-        }
     }
 }

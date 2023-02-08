@@ -1,6 +1,4 @@
 <?php
-include_once("./Services/COPage/classes/class.ilPageComponentPlugin.php");
-require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/classes/class.ilMDViewerPluginGUI.php');
 
 /**
  * Class ilMDViewerPlugin
@@ -9,42 +7,35 @@ require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewe
  */
 class ilMDViewerPlugin extends ilPageComponentPlugin
 {
-    const PLUGIN_NAME = "MDViewer";
+    public const PLUGIN_NAME = "MDViewer";
+    public const PLUGIN_ID = "md_tme";
+    private ilObjUser $user;
+    private ilRbacReview $rbacreview;
 
-    /**
-     * Get plugin name
-     * @return string
-     */
-    public function getPluginName()
+    public function getPluginName(): string
     {
         return self::PLUGIN_NAME;
     }
 
-    /**
-     * @param string $a_parent_type
-     * @return bool
-     */
-    public function isValidParentType($a_parent_type)
+    public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
     {
-        /** @var $ilUser ilObjUser */
-        global $ilUser;
-
-        return $this->isUserAuthorized($ilUser->getId());
+        global $DIC;
+        parent::__construct($db, $component_repository, $id);
+        $this->user = $DIC->user();
+        $this->rbacreview = $DIC->rbac()->review();
     }
 
-    /**
-     * @param int $user_id
-     * @return bool
-     */
-    public function isUserAuthorized($user_id)
+    public function isValidParentType(string $a_type): bool
     {
-        /** @var $rbacreview ilRbacReview */
-        global $rbacreview;
+        return $this->isUserAuthorized($this->user->getId());
+    }
 
-        $authorized_roles = ilMDViewerConfig::get(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
+    public function isUserAuthorized(int $user_id): bool
+    {
+        $authorized_roles = ilMDViewerConfig::getConfigValue(ilMDViewerConfig::KEY_IDS_OF_AUTHORIZED_ROLES);
         if (!empty($authorized_roles)) {
             foreach ($authorized_roles as $authorized_role) {
-                if ($rbacreview->isAssigned($user_id, $authorized_role)) {
+                if ($this->rbacreview->isAssigned($user_id, $authorized_role)) {
                     return true;
                 }
             }
@@ -53,32 +44,20 @@ class ilMDViewerPlugin extends ilPageComponentPlugin
         return false;
     }
 
-    /**
-     * @param $a_mode
-     * @return array
-     */
-    public function getJavascriptFiles($a_mode)
+    public function getJavascriptFiles(string $a_mode): array
     {
         return [];
     }
 
-    /**
-     * @param $a_mode
-     * @return array
-     */
-    public function getCssFiles($a_mode)
+    public function getCssFiles(string $a_mode): array
     {
         return [
             'templates/external-md.css',
         ];
     }
 
-    protected function afterUninstall()
+    protected function afterUninstall(): void
     {
-        global $DIC;
-
-        $DIC->database()->dropTable((new ilMDViewerConfig)->getConnectorContainerName());
+        $this->db->dropTable((new ilMDViewerConfig())->getConnectorContainerName());
     }
-
 }
-

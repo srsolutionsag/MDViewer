@@ -1,54 +1,41 @@
 <?php
-include_once("./Services/COPage/classes/class.ilPageComponentPluginGUI.php");
-require_once('./Customizing/global/plugins/Services/COPage/PageComponent/MDViewer/vendor/autoload.php');
+
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 use Michelf\MarkdownExtra;
 use ILIAS\Refinery\Transformation;
+use ILIAS\HTTP\GlobalHttpState;
 
 /**
  * Class ilMDViewerPluginGUI
- * @author Fabian Schmid <fabian@sr.solution>
- * @author Thibeau Fuhrer <thibeau@sr.solutions>
+ * @author            Fabian Schmid <fabian@sr.solution>
+ * @author            Thibeau Fuhrer <thibeau@sr.solutions>
  * @ilCtrl_isCalledBy ilMDViewerPluginGUI: ilPCPluggedGUI
  */
 class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
 {
+    public const F_LINK_PREFIX = 'link_prefix_url';
+    public const F_EXTERNAL_MD = 'external_md';
+    public const F_BLOCKS_FILTER = 'filtered_blocks';
+    public const F_SHOW_SOURCE = 'show_source';
+    public const MODE_EDIT = 'edit';
+    public const MODE_PREVIEW = 'preview';
+    public const MODE_PRESENTATION = 'presentation';
+    public const MODE_CREATE = "create";
+    public const MODE_UPDATE = 'update';
+    public const CMD_CANCEL = 'cancel';
 
-    const F_LINK_PREFIX = 'link_prefix_url';
-    const F_EXTERNAL_MD = 'external_md';
-    const F_BLOCKS_FILTER = 'filtered_blocks';
-    const F_SHOW_SOURCE = 'show_source';
-    const MODE_EDIT = 'edit';
-    const MODE_PREVIEW = 'preview';
-    const MODE_PRESENTATION = 'presentation';
-    const MODE_CREATE = "create";
-    const MODE_UPDATE = 'update';
-    const CMD_CANCEL = 'cancel';
+    protected ilGlobalTemplateInterface $tpl;
 
-    /**
-     * @var ilTemplate
-     */
-    protected $tpl;
-    /**
-     * @var \ILIAS\Refinery\Factory
-     */
-    protected $refinery;
-    /**
-     * @var ilObjUser
-     */
-    protected $user;
-    /**
-     * @var \ILIAS\DI\HTTPServices
-     */
-    protected $http;
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var \ILIAS\DI\UIServices
-     */
-    protected $ui;
+    protected \ILIAS\Refinery\Factory $refinery;
+
+    protected ilObjUser $user;
+
+    protected GlobalHttpState $http;
+
+    protected ilCtrl $ctrl;
+
+    protected \ILIAS\DI\UIServices $ui;
 
     public function __construct()
     {
@@ -64,7 +51,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         parent::__construct();
     }
 
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
@@ -76,6 +63,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             case self::MODE_EDIT:
             case self::MODE_CREATE:
             case self::MODE_UPDATE:
+                $this->setMode($cmd);
                 if ($this->getPlugin()->isUserAuthorized($this->user->getId())) {
                     $this->{$cmd}();
                 } else {
@@ -88,39 +76,36 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         }
     }
 
-    public function insert()
+    public function insert(): void
     {
         $this->showForm();
     }
 
-    public function edit()
+    public function edit(): void
     {
         $this->showForm();
     }
 
-    public function create()
+    public function create(): void
     {
         $this->processForm();
     }
 
-    public function update()
+    public function update(): void
     {
         $this->processForm();
     }
 
-    public function cancel()
+    public function cancel(): void
     {
         $this->returnToParent();
     }
 
-    /**
-     * @param string $a_mode
-     * @param array $a_properties
-     * @param string $a_plugin_version
-     * @return string
-     */
-    public function getElementHTML($a_mode, array $a_properties, $a_plugin_version)
-    {
+    public function getElementHTML(
+        string $a_mode,
+        array $a_properties,
+        string $plugin_version
+    ): string {
         if (!$this->isPresentationMode($a_mode)) {
             return $a_properties[self::F_EXTERNAL_MD];
         }
@@ -131,8 +116,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         $link_prefix = $a_properties[self::F_LINK_PREFIX];
         $link_prefix = ('' === $link_prefix) ?
             rtrim(dirname($external_file), "/") . "/" :
-            $link_prefix
-        ;
+            $link_prefix;
 
         $external_content_raw = @file_get_contents($external_file);
         if ($this->areFilterBlocksEnabled() && '' !== $this->stripWhitespaces($a_properties[self::F_BLOCKS_FILTER])) {
@@ -166,12 +150,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $template->get();
     }
 
-    /**
-     * @param string $raw_content
-     * @param array $blocks
-     * @return string
-     */
-    protected function filterRawContentString($raw_content, $blocks)
+    protected function filterRawContentString(string $raw_content, array $blocks): string
     {
         // regex pattern matches anything in between '[//]: # (BEGIN <block name>)' and '[//]: # (END <block name>)'.
         // '{BLOCK_NAME}' has to be replaced with the actual block name.
@@ -194,10 +173,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         return $content;
     }
 
-    /**
-     * @return \ILIAS\UI\Component\Input\Container\Form\Standard
-     */
-    protected function initForm()
+    protected function initForm(): \ILIAS\UI\Component\Input\Container\Form\Standard
     {
         $properties = $this->getProperties();
         $inputs = [
@@ -267,11 +243,12 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
                 $this->updateElement($properties);
             }
 
-            ilUtil::sendSuccess($this->getPlugin()->txt("msg_saved"), true);
+            $this->tpl->setOnScreenMessage('success', $this->getPlugin()->txt("msg_saved"), true);
             $this->returnToParent();
         }
 
-        ilUtil::sendFailure($this->getPlugin()->txt("msg_invalid_url"));
+        $this->tpl->setOnScreenMessage('failure', $this->getPlugin()->txt("msg_invalid_url"));
+
         $this->tpl->setContent(
             $this->ui->renderer()->render(
                 $form
@@ -279,7 +256,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    protected function showForm()
+    protected function showForm(): void
     {
         $this->tpl->setContent(
             $this->ui->renderer()->render(
@@ -288,7 +265,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    protected function getExternalUrlValidation() : Transformation
+    protected function getExternalUrlValidation(): Transformation
     {
         return $this->refinery->custom()->transformation(static function ($value) {
             if (preg_match('/^(https:\/\/raw\.githubusercontent\.com\/ILIAS.*\.md)$/', $value)) {
@@ -299,15 +276,15 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         });
     }
 
-    protected function isCreationMode() : bool
+    protected function isCreationMode(): bool
     {
         return (
-            ilPageComponentPlugin::CMD_INSERT === $this->getMode() ||
-            self::MODE_CREATE === $this->ctrl->getCmd()
+            self::MODE_CREATE === $this->ctrl->getCmd() ||
+            ilPageComponentPlugin::CMD_INSERT === $this->getMode()
         );
     }
 
-    protected function isPresentationMode($mode) : bool
+    protected function isPresentationMode(string $mode): bool
     {
         return (
             self::MODE_PRESENTATION === $mode ||
@@ -315,19 +292,12 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    /**
-     * @return bool
-     */
-    protected function areFilterBlocksEnabled()
+    protected function areFilterBlocksEnabled(): bool
     {
-        return (bool) ilMDViewerConfig::get(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE);
+        return (bool) ilMDViewerConfig::getConfigValue(ilMDViewerConfig::KEY_MD_BLOCKS_FILTER_ACTIVE);
     }
 
-    /**
-     * @param string $string
-     * @return string
-     */
-    protected function stripWhitespaces($string)
+    protected function stripWhitespaces(string $string): string
     {
         return (string) preg_replace('/\s/', '', $string);
     }
