@@ -119,7 +119,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
             $link_prefix;
 
         $external_content_raw = @file_get_contents($external_file);
-        if ($this->areFilterBlocksEnabled() && '' !== $this->stripWhitespaces($a_properties[self::F_BLOCKS_FILTER])) {
+        if ($this->areFilterBlocksEnabled() && '' !== $this->stripWhitespaces($a_properties[self::F_BLOCKS_FILTER] ?? '')) {
             $external_content_raw = $this->filterRawContentString(
                 $external_content_raw,
                 explode(',', $a_properties[self::F_BLOCKS_FILTER])
