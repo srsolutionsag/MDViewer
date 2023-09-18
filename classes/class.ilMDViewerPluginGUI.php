@@ -21,6 +21,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
     public const MODE_EDIT = 'edit';
     public const MODE_PREVIEW = 'preview';
     public const MODE_PRESENTATION = 'presentation';
+    public const MODE_PRINT = 'print';
     public const MODE_CREATE = "create";
     public const MODE_UPDATE = 'update';
     public const CMD_CANCEL = 'cancel';
@@ -106,7 +107,7 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         array $a_properties,
         string $plugin_version
     ): string {
-        if (!$this->isPresentationMode($a_mode)) {
+        if (!$this->shouldContentBeRendered($a_mode)) {
             return $a_properties[self::F_EXTERNAL_MD];
         }
 
@@ -284,9 +285,10 @@ class ilMDViewerPluginGUI extends ilPageComponentPluginGUI
         );
     }
 
-    protected function isPresentationMode(string $mode): bool
+    protected function shouldContentBeRendered(string $mode): bool
     {
         return (
+            self::MODE_PRINT === $mode ||
             self::MODE_PRESENTATION === $mode ||
             self::MODE_PREVIEW === $mode
         );
