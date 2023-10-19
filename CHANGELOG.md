@@ -1,5 +1,9 @@
 # MDViewer Changelog
 
+## v3.0.2
+
+- Fixed an issue where empty block filter lead to a fatal.
+
 ## v3.0.1
 
 - Fixed an issue where the content was not rendered in printing mode.

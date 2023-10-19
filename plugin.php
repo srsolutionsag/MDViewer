@@ -1,6 +1,6 @@
 <?php
 $id = 'md_tme';
-$version = '3.0.1';
+$version = '3.0.2';
 $ilias_min_version = '8.000';
 $ilias_max_version = '8.999';
 $responsible = 'sr solutions ag';
