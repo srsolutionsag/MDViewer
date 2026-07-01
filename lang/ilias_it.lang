@@ -1,0 +1,22 @@
+form_title#:#File Markdown esterno
+form_button_cancel#:#Annulla
+form_md#:#File Markdown esterno
+form_md_info#:#L'URL deve provenire da https://raw.githubusercontent.com/...
+form_button_update#:#Salva
+form_button_create#:#Salva
+form_link_prefix#:#Prefisso link
+form_filter_blocks#:#Filtra blocchi
+form_info_filter_blocks#:#Mostra solo i blocchi di contenuto elencati qui (separati da virgola (,)).
+form_show_source#:#Mostra sorgente?
+msg_saved#:#Salvato
+msg_invalid_url#:#La sorgente esterna deve iniziare con 'https://raw.githubusercontent.com/ILIAS' e terminare con '.md'.
+cmd_insert#:#Includi file MD esterno
+box_title#:#Informazioni su questo contenuto
+box_intro_text#:#Il testo seguente è ospitato su una fonte esterna.
+box_button_open#:#Apri originale
+box_outro_text#:#Il testo sopra questa riga è ospitato su una fonte esterna.
+config_configuration#:#Configurazione
+config_authorized_roles#:#Ruoli autorizzati
+config_info_authorized_roles#:#Ruoli che autorizzano gli utenti assegnati a utilizzare le funzionalità del plugin MDViewer.
+config_blocks_filter#:#Filtro blocchi attivo?
+config_info_blocks_filter#:#Consente di filtrare un file MD per blocchi specifici quando viene incluso in una COPage.
