@@ -1,5 +1,9 @@
 # MDViewer Changelog
 
+## 6.0.1
+
+- Added Italian as a plugin language.
+
 ## 6.0.0
 
 - Added ILIAS 11 compatibility.
